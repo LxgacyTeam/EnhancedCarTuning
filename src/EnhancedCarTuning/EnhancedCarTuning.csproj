@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>EnhancedCarTuning</AssemblyName>
+    <RootNamespace>EnhancedCarTuning</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>LxgacyTeam</Authors>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <NoWarn>$(NoWarn);0618</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<NoWarn>1701;1702;0618;0649</NoWarn>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<NoWarn>1701;1702;0618;0649</NoWarn>
+  </PropertyGroup>
+	
+  <PropertyGroup>
+    <BigCityLegacyDll Condition="'$(BigCityLegacyDll)' == ''">$(GameDir)\BepInEx\plugins\BigCityLegacy\BigCityLegacy.dll</BigCityLegacyDll>
+    <BigCityLegacyDll Condition="!Exists('$(BigCityLegacyDll)') and Exists('$(GameDir)\BepInEx\plugins\BigCityLegacy.dll')">$(GameDir)\BepInEx\plugins\BigCityLegacy.dll</BigCityLegacyDll>
+	<ResourcesDll Condition="'$(ResourcesDll)' == ''">$(OutputPath)\EnhancedCarTuning.Resources.dll</ResourcesDll>
+	<CopyToPlugins Condition="'$(CopyToPlugins)' == ''">false</CopyToPlugins>
+  </PropertyGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\EnhancedCarTuning.Resources\EnhancedCarTuning.Resources.csproj" />
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="BigCityLegacy"><HintPath>$(BigCityLegacyDll)</HintPath><Private>false</Private></Reference>
+    <Reference Include="BepInEx"><HintPath>$(BepInExDir)\BepInEx.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(BepInExDir)\0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Assembly-CSharp" Publicize="true"><HintPath>$(ManagedDir)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Assembly-CSharp-firstpass" Publicize="true"><HintPath>$(ManagedDir)\Assembly-CSharp-firstpass.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(ManagedDir)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.AudioModule"><HintPath>$(ManagedDir)\UnityEngine.AudioModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(ManagedDir)\UnityEngine.PhysicsModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UIModule"><HintPath>$(ManagedDir)\UnityEngine.UIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UI"><HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.AssetBundleModule" Condition="Exists('$(ManagedDir)\UnityEngine.AssetBundleModule.dll')"><HintPath>$(ManagedDir)\UnityEngine.AssetBundleModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.ImageConversionModule" Condition="Exists('$(ManagedDir)\UnityEngine.ImageConversionModule.dll')"><HintPath>$(ManagedDir)\UnityEngine.ImageConversionModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(ManagedDir)\UnityEngine.TextRenderingModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="com.unity.multiplayer-hlapi.Runtime"><HintPath>$(ManagedDir)\com.unity.multiplayer-hlapi.Runtime.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+	
+  <Target Name="ValidateGamePaths" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(ManagedDir)\Assembly-CSharp.dll')" Text="Unity assemblies not found. Set GameDir in Directory.Build.props, or pass -p:GameDir=..." />
+    <Error Condition="!Exists('$(BigCityLegacyDll)')" Text="BigCityLegacy.dll not found. Set -p:BigCityLegacyDll=..." />
+    <Error Condition="!Exists('$(BepInExDir)\BepInEx.dll')" Text="Install BepInEx 5 in the game directory before building." />
+  </Target>
+
+  <Target Name="CopyPluginToGame" AfterTargets="Build" Condition="'$(CopyToPlugins)' == 'true'">
+	<MakeDir Directories="$(GameDir)\BepInEx\plugins\EnhancedCarTuning" />
+	<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)\BepInEx\plugins\EnhancedCarTuning" />
+	<Copy SourceFiles="$(ResourcesDll)" DestinationFolder="$(GameDir)\BepInEx\plugins\EnhancedCarTuning" Condition="Exists('$(ResourcesDll)')" />
+   </Target>
+</Project>
+

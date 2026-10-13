@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>EnhancedCarTuning.Resources</AssemblyName>
+    <RootNamespace>EnhancedCarTuning.Resources</RootNamespace>
+    <Version>1.4.2</Version>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="assets\*.png;assets\fonts\*.png;assets\*.bundle;assets\primitives\*.png" LogicalName="EnhancedCarTuning.Resources.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="assets\fonts\**\*.otf;assets\fonts\**\*.ttf" WithCulture="false" />
+  </ItemGroup>
+</Project>
