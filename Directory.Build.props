@@ -4,7 +4,7 @@
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <Deterministic>true</Deterministic>
-    <GameDir Condition="'$(GameDir)' == ''">REPLACE_TO_YOUR_GAMEDIR</GameDir>
+    <GameDir Condition="'$(GameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\MadOut2_BigCityOnline</GameDir>
     <GameDataDir Condition="'$(GameDataDir)' == ''">game_Data</GameDataDir>
     <ManagedDir Condition="'$(ManagedDir)' == ''">$(GameDir)\$(GameDataDir)\Managed</ManagedDir>
     <BepInExDir Condition="'$(BepInExDir)' == ''">$(GameDir)\BepInEx\core</BepInExDir>

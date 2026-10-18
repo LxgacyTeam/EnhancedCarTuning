@@ -33,7 +33,7 @@ namespace EnhancedCarTuning.Patches
         private static void Postfix(CarGarageUI_Buy __instance, MenuBuy buy)
         {
             var panel = GarageTuningPanel.Find(__instance);
-            if (panel) { panel.Session.AddPurchaseItems(buy); panel.BodyPaintSession?.AddPurchaseItems(buy); panel.PolicePaintSession?.AddPurchaseItems(buy); }
+            if (panel) { panel.Session.AddPurchaseItems(buy); panel.BodyPaintSession?.AddPurchaseItems(buy); panel.PolicePaintSession?.AddPurchaseItems(buy); panel.GetComponent<EnhancedCarTuning.Appearance.Glass.GlassGaragePrototype>()?.AddPurchaseItems(buy); }
         }
     }
 
@@ -46,7 +46,7 @@ namespace EnhancedCarTuning.Patches
         {
             if (__result) return;
             var panel = GarageTuningPanel.Find(__instance);
-            if (panel) { panel.PolicePaintSession?.WrapPurchase(); panel.BodyPaintSession?.WrapPurchase(); panel.Session.WrapPurchase(); }
+            if (panel) { panel.PolicePaintSession?.WrapPurchase(); panel.BodyPaintSession?.WrapPurchase(); panel.Session.WrapPurchase(); panel.GetComponent<EnhancedCarTuning.Appearance.Glass.GlassGaragePrototype>()?.WrapPurchase(); }
         }
     }
 

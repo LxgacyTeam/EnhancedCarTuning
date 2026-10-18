@@ -2,6 +2,7 @@ using EnhancedCarTuning.TuneUp.Engine;
 using EnhancedCarTuning.Core;
 using EnhancedCarTuning.Persistence;
 using EnhancedCarTuning.Appearance.Police;
+using EnhancedCarTuning.Wheels.Models;
 
 namespace EnhancedCarTuning.Networking
 {
@@ -21,6 +22,10 @@ namespace EnhancedCarTuning.Networking
             { Plugin.Warn("Rejected invalid police paint XML."); return false; }
             if (!EngineCatalog.IsKnown(settings.EngineId))
             { Plugin.Warn("Rejected unknown engine: " + settings.EngineId); return false; }
+            if (!WheelModelCatalog.IsKnown(settings.Wheels.Front.ModelId) || !WheelModelCatalog.IsKnown(settings.Wheels.Rear.ModelId))
+            { Plugin.Warn("Rejected unknown wheel model."); return false; }
+            if (!EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(settings.Wheels.Front.TireId) || !EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(settings.Wheels.Rear.TireId))
+            { Plugin.Warn("Rejected unknown tire model."); return false; }
             return true;
         }
 

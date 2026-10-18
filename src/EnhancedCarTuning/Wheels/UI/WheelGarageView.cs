@@ -5,6 +5,8 @@ using EnhancedCarTuning.Core;
 using EnhancedCarTuning.UI;
 using EnhancedCarTuning.Localization;
 using EnhancedCarTuning.Wheels.Suspension;
+using EnhancedCarTuning.Wheels.Models;
+using EnhancedCarTuning.Wheels.Tires;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -22,9 +24,12 @@ namespace EnhancedCarTuning.Wheels.UI
         private Transform colorParent;
         private int colorIndex;
         private bool colorStatic;
-        private MenuButtonGroup axleButton, reset;
+        private bool colorPreserveAspect;
+        private MenuButtonGroup axleButton, modelButton, tireButton, reset;
         private AxleTarget selected = AxleTarget.Both;
         private Font font;
+        private Text modelName, tireName;
+        private readonly List<WheelSwitchArrow> arrows = new List<WheelSwitchArrow>();
         private readonly Vector3[] corners = new Vector3[4];
         private Sprite[] axleIcons;
 
@@ -67,8 +72,8 @@ namespace EnhancedCarTuning.Wheels.UI
                 axleIcons = new[] { factory.Sprite("wheels_all"), factory.Sprite("wheels_front"), factory.Sprite("wheels_back") };
                 popup = Box("AxleSelect", root, 320, 140, 300, 490);
                 popup.gameObject.AddComponent<Image>().color = new Color(0.08f, 0.1f, 0.11f, 0.78f);
-                axleButton = Button(factory, "Axle", root, "ОБЕ ОСИ", "wheels_all", 6, 146, 262, 130,
-                    () => popup.gameObject.SetActive(!popup.gameObject.activeSelf));
+                axleButton = Button(factory, "Axle", root, "ОБЕ ОСИ", "wheels_all", WheelPanelLayout.Left, WheelPanelLayout.AxleTop, WheelPanelLayout.Width, WheelPanelLayout.CardHeight,
+                    () => { popup.gameObject.SetActive(!popup.gameObject.activeSelf); });
                 for (int i = 0; i < 3; i++)
                 {
                     var choice = (AxleTarget)i;
@@ -76,14 +81,16 @@ namespace EnhancedCarTuning.Wheels.UI
                         10, 10 + i * 160, 280, 150, () => { selected = choice; popup.gameObject.SetActive(false); Refresh(); });
                 }
                 popup.gameObject.SetActive(false);
+                modelButton = Selector(factory, "WheelModel", "КОЛЁСА", WheelPanelLayout.RimTop, CycleModel, out modelName);
+                tireButton = Selector(factory, "TireModel", "ШИНЫ", WheelPanelLayout.TireTop, CycleTire, out tireName);
                 reset = Button(factory, "ResetAxle", root, "СБРОС ОСИ", "", 1642, 972, 268, 92,
                     () => { session.ResetWheels(selected); Refresh(); });
                 // Reset is text-only; the axle controls use a large car silhouette above the label.
                 Fit(reset.text.ui.rectTransform, 0.06f, 0.08f, 0.94f, 0.92f);
             }
 
-            AddSlider(source, WheelParameter.Radius, "РАДИУС", " см", 6, 610, 262, 97);
-            AddSlider(source, WheelParameter.Width, "ШИРИНА", " см", 6, 718, 262, 97);
+            AddSlider(source, WheelParameter.Radius, "ДИАМЕТР", " см", WheelPanelLayout.Left, WheelPanelLayout.DiameterTop, WheelPanelLayout.Width, WheelPanelLayout.SliderHeight);
+            AddSlider(source, WheelParameter.Width, "ШИРИНА", " см", WheelPanelLayout.Left, WheelPanelLayout.WidthTop, WheelPanelLayout.Width, WheelPanelLayout.SliderHeight);
             AddSlider(source, WheelParameter.OffsetX, "СМЕЩЕНИЕ X", " см", 1642, 190, 268, 98);
             AddSlider(source, WheelParameter.OffsetY, "СМЕЩЕНИЕ Y", " см", 1642, 293, 268, 96);
             AddSlider(source, WheelParameter.Travel, "ХОД ПОДВЕСКИ", " см", 1642, 395, 268, 94);
@@ -95,15 +102,44 @@ namespace EnhancedCarTuning.Wheels.UI
             {
                 var rect = (RectTransform)garage.wheelColor.transform;
                 colorParent = rect.parent; colorIndex = rect.GetSiblingIndex(); colorStatic = garage.wheelColor.isStaickPos;
+                var colorPanel = garage.wheelColor.panel as Image;
+                if (colorPanel) { colorPreserveAspect = colorPanel.preserveAspect; colorPanel.preserveAspect = false; }
                 colorBackup = NativeMenuFactory.Rect("ECT.ColorTransformBackup", menu, 0, 0);
                 NativeMenuFactory.CopyRect(rect, colorBackup); colorBackup.gameObject.SetActive(false);
-                rect.SetParent(root, false); Place(rect, 6, 462, 262, 135); garage.wheelColor.isStaickPos = true;
+                rect.SetParent(root, false); Place(rect, WheelPanelLayout.Left, WheelPanelLayout.ColorTop, WheelPanelLayout.Width, WheelPanelLayout.CardHeight); garage.wheelColor.isStaickPos = true;
             }
             if (garage.wheelType) Hide(garage.wheelType.gameObject);
             foreach (var slider in menu.GetComponentsInChildren<MenuSliderOver>(true)) Hide(slider.gameObject);
             // Popup above other controls, so its hit area cannot overlap a slider behind it.
             popup.SetAsLastSibling();
             root.gameObject.SetActive(true); Refresh();
+        }
+
+        private void CycleModel()
+        {
+            if (!session.CanEdit) return;
+            popup.gameObject.SetActive(false);
+            var wheels = session.Selection.Draft.Wheels;
+            string current = selected == AxleTarget.Rear ? wheels.Rear.ModelId : wheels.Front.ModelId;
+            float x = ((RectTransform)modelButton.transform).MouseToLocal(modelButton.pressPos).x;
+            session.SelectWheelModel(selected, WheelModelCatalog.Step(current, WheelModelCycle.Direction(x)));
+            Refresh();
+        }
+        private void CycleTire()
+        {
+            if (!session.CanEdit) return;
+            popup.gameObject.SetActive(false);
+            var wheels = session.Selection.Draft.Wheels;
+            string current = selected == AxleTarget.Rear ? wheels.Rear.TireId : wheels.Front.TireId;
+            float x = ((RectTransform)tireButton.transform).MouseToLocal(tireButton.pressPos).x;
+            session.SelectTire(selected, TireCatalog.Step(current, WheelModelCycle.Direction(x))); Refresh();
+        }
+        private MenuButtonGroup Selector(NativeMenuFactory factory, string name, string label, float y, Action action, out Text value)
+        {
+            var button = Button(factory, name, root, label, "", WheelPanelLayout.Left, y, WheelPanelLayout.Width, WheelPanelLayout.CardHeight, action);
+            value = WheelSelectorView.Create((RectTransform)button.transform, button.text.ui, font, out var selectorArrows);
+            value.name = "ECT." + name + "Name"; arrows.AddRange(selectorArrows);
+            return button;
         }
 
         private void Hide(GameObject go) { if (go.activeSelf) { hidden.Add(go); go.SetActive(false); } }
@@ -113,6 +149,7 @@ namespace EnhancedCarTuning.Wheels.UI
             var button = factory.Button("ECT." + name, parent, label, icon, action: () => { if (!MenuBuy.me) action(); });
             buttons.Add(button); button.isStaickPos = true;
             Place((RectTransform)button.transform, x, y, width, height);
+            var background = button.GetComponent<Image>(); if (background) background.preserveAspect = false;
             foreach (var text in button.GetComponentsInChildren<Text>(true)) if (text != button.text.ui) text.enabled = false;
             var title = button.text.ui; title.transform.SetParent(button.transform, false);
             Fit(title.rectTransform, 0.04f, 0.02f, 0.96f, 0.32f);
@@ -147,6 +184,18 @@ namespace EnhancedCarTuning.Wheels.UI
             foreach (var text in root.GetComponentsInChildren<Text>(true))
                 if (text && text.gameObject.name == "ПОДВЕСКА") text.text = ECTLocalization.T("ПОДВЕСКА");
             NativeMenuFactory.SetIcon(axleButton, axleIcons[(int)selected]);
+            var wheels = session.Selection.Draft.Wheels;
+            string model = selected == AxleTarget.Rear ? wheels.Rear.ModelId : wheels.Front.ModelId;
+            string label = selected == AxleTarget.Both && wheels.Front.ModelId != wheels.Rear.ModelId ? "РАЗНЫЕ" : WheelModelCatalog.Label(model);
+            NativeMenuFactory.SetLabel(modelButton.text.ui, ECTLocalization.T("КОЛЁСА") + ":");
+            modelName.text = ECTLocalization.T(label);
+            modelName.color = modelButton.text.ui.color;
+            modelButton.nowButtonDissabe = !session.CanEdit;
+            string tire = selected == AxleTarget.Rear ? wheels.Rear.TireId : wheels.Front.TireId;
+            tireName.text = ECTLocalization.T(selected == AxleTarget.Both && wheels.Front.TireId != wheels.Rear.TireId ? "РАЗНЫЕ" : TireCatalog.Label(tire));
+            NativeMenuFactory.SetLabel(tireButton.text.ui, ECTLocalization.T("ШИНЫ") + ":");
+            tireName.color = tireButton.text.ui.color; tireButton.nowButtonDissabe = !session.CanEdit;
+            foreach (var arrow in arrows) if (arrow) arrow.color = session.CanEdit ? new Color(.88f, .9f, .91f, 1) : new Color(.45f, .48f, .49f, 1);
             reset.nowButtonDissabe = !session.CanEdit;
             foreach (var slider in sliders) if (slider) slider.Refresh();
         }
@@ -179,12 +228,13 @@ namespace EnhancedCarTuning.Wheels.UI
         { rect.localScale = Vector3.one; rect.localRotation = Quaternion.identity; rect.sizeDelta = new Vector2(w, h); NativeMenuFactory.Place(rect, x, y); }
         private static RectTransform Box(string name, Transform parent, float x, float y, float w, float h)
         { var rect = NativeMenuFactory.Rect(name, parent, w, h); Place(rect, x, y, w, h); return rect; }
-        private void TextLabel(string label, Transform parent, float x, float y, float w, float h)
+        private Text TextLabel(string label, Transform parent, float x, float y, float w, float h)
         {
             var text = Box(label, parent, x, y, w, h).gameObject.AddComponent<Text>();
             text.text = ECTLocalization.T(label); text.font = font; text.fontSize = 38; text.alignment = TextAnchor.MiddleCenter;
             text.color = new Color(0.88f, 0.9f, 0.91f); text.raycastTarget = false;
             text.resizeTextForBestFit = true; text.resizeTextMinSize = 18; text.resizeTextMaxSize = 38;
+            return text;
         }
         public void Dispose()
         {
@@ -193,6 +243,7 @@ namespace EnhancedCarTuning.Wheels.UI
                 var rect = (RectTransform)garage.wheelColor.transform;
                 rect.SetParent(colorParent, false); rect.SetSiblingIndex(colorIndex);
                 NativeMenuFactory.CopyRect(colorBackup, rect); garage.wheelColor.isStaickPos = colorStatic;
+                var colorPanel = garage.wheelColor.panel as Image; if (colorPanel) colorPanel.preserveAspect = colorPreserveAspect;
             }
             foreach (var go in hidden) if (go) go.SetActive(true);
             foreach (var button in buttons) NativeMenuFactory.RemoveButton(button);

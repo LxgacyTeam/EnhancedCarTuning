@@ -73,6 +73,10 @@ namespace EnhancedCarTuning
             }
             foreach (var paint in UnityEngine.Resources.FindObjectsOfTypeAll<BodyPaintState>())
             { paint.ResetForPool(); Destroy(paint); }
+            foreach (var glass in UnityEngine.Resources.FindObjectsOfTypeAll<EnhancedCarTuning.Appearance.Glass.GlassPrototypeState>())
+            { glass.Reset(); Destroy(glass); }
+            foreach (var ui in UnityEngine.Resources.FindObjectsOfTypeAll<EnhancedCarTuning.Appearance.Glass.GlassGaragePrototype>()) Destroy(ui);
+            EnhancedCarTuning.Appearance.Glass.GlassPrototypeAssets.Clear();
             VinylRenderTextures.Clear();
             harmony?.UnpatchSelf();
             EngineCatalog.Reset();

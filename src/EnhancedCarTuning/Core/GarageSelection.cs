@@ -3,7 +3,6 @@ using EnhancedCarTuning.Wheels.Suspension;
 
 namespace EnhancedCarTuning.Core
 {
-    // A preview is never itself a saved purchase.
     internal sealed class GarageSelection
     {
         internal TuningSettings Original { get; }

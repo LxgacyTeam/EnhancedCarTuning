@@ -4,6 +4,7 @@ using System.IO;
 using System.Xml;
 using EnhancedCarTuning.Core;
 using EnhancedCarTuning.Wheels.Suspension;
+using EnhancedCarTuning.Wheels.Models;
 using EnhancedCarTuning.Appearance.Vinyls;
 using EnhancedCarTuning.Appearance.Body;
 
@@ -20,6 +21,9 @@ namespace EnhancedCarTuning.Persistence
             error = null;
             if (root == null) return true;
             if (!VinylXml.Validate(root)) { error = "Недопустимые текстовые винилы или симметрия."; return false; }
+            var glassNodes = root.SelectNodes(EnhancedCarTuning.Appearance.Glass.GlassPrototypeXml.Node);
+            if (glassNodes.Count > 1 || (glassNodes.Count == 1 && !EnhancedCarTuning.Appearance.Glass.GlassPrototypeXml.Validate(glassNodes[0] as XmlElement)))
+            { error = "Недопустимые параметры стекол."; return false; }
             if (!BodyPaintXml.TryRead(root, out _)) { error = "Недопустимые параметры покраски кузова."; return false; }
             XmlElement tuning = null;
             foreach (XmlNode child in root.ChildNodes)
@@ -56,6 +60,8 @@ namespace EnhancedCarTuning.Persistence
             { error = "Недопустимые параметры колёс."; return false; }
             if (tuning != null && tuning.GetAttribute("version") == "1" && tuning.SelectSingleNode("Wheels") != null)
             { error = "Параметрам колёс требуется версия XML 2."; return false; }
+            if (!WheelModelXml.Read(root, wheels, out wheels) || !RimSizeXml.Read(root, wheels, out wheels) || !EnhancedCarTuning.Wheels.Tires.TireXml.Read(root, wheels, out wheels))
+            { error = "Недопустимые модели или размеры дисков."; return false; }
             settings = new TuningSettings(engine, layout, wheels);
             return true;
         }
@@ -89,6 +95,9 @@ namespace EnhancedCarTuning.Persistence
             element.SetAttribute("drive", settings.Drive.ToString());
             WheelXml.Write(element, settings.Wheels);
             root.AppendChild(element);
+            WheelModelXml.Write(root, settings.Wheels);
+            RimSizeXml.Write(root, settings.Wheels);
+            EnhancedCarTuning.Wheels.Tires.TireXml.Write(root, settings.Wheels);
         }
     }
 }

@@ -20,7 +20,10 @@ namespace EnhancedCarTuning
             {
                 if (state) state.SerializePreview = true;
                 if (police) police.SerializePreview = true;
-                return garage.car.GetComponent<CarSaveLoad>().SaveXml().OuterXml;
+                var glass = garage.car.GetComponent<EnhancedCarTuning.Appearance.Glass.GlassPrototypeState>();
+                bool oldGlass = glass && glass.SerializePreview;
+                try { if (glass) glass.SerializePreview = true; return garage.car.GetComponent<CarSaveLoad>().SaveXml().OuterXml; }
+                finally { if (glass) glass.SerializePreview = oldGlass; }
             }
             finally { if (state) state.SerializePreview = previous; if (police) police.SerializePreview = previousPolice; }
         }
@@ -35,6 +38,7 @@ namespace EnhancedCarTuning
             panel?.BodyPaintSession?.RebaseImported();
             panel?.PolicePaintSession?.RebaseImported();
             panel?.RefreshImportedBodyPaint();
+            garage.GetComponent<EnhancedCarTuning.Appearance.Glass.GlassGaragePrototype>()?.RebaseImported();
         }
     }
 }

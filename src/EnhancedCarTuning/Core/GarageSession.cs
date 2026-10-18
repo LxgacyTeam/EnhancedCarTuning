@@ -4,6 +4,7 @@ using System;
 using EnhancedCarTuning.Core;
 using EnhancedCarTuning.Networking;
 using EnhancedCarTuning.Wheels.Suspension;
+using EnhancedCarTuning.Wheels.Models;
 
 namespace EnhancedCarTuning.Core
 {
@@ -52,6 +53,20 @@ namespace EnhancedCarTuning.Core
             State.Preview(Selection.Draft);
         }
 
+        internal void SelectWheelModel(AxleTarget axle, string id)
+        {
+            if (!CanEdit || !WheelModelCatalog.IsKnown(id)) return;
+            Selection.SelectWheels(Selection.Draft.Wheels.WithModel(axle, id));
+            State.Preview(Selection.Draft);
+        }
+
+        internal void SelectTire(AxleTarget axle, string id)
+        {
+            if (!CanEdit || !EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(id)) return;
+            Selection.SelectWheels(Selection.Draft.Wheels.WithTire(axle, id));
+            State.Preview(Selection.Draft);
+        }
+
         internal void ResetWheels(AxleTarget axle)
         {
             if (!CanEdit) return;
@@ -93,7 +108,6 @@ namespace EnhancedCarTuning.Core
                 bool allowed = CanEdit;
                 if (!allowed)
                 {
-                    // An event can start while the confirmation window is open. Don't charge for rejected changes.
                     if (engineItem) engineItem.SetCost(0, true);
                     if (driveItem) driveItem.SetCost(0, true);
                     if (frontItem) frontItem.SetCost(0, true);
@@ -106,7 +120,6 @@ namespace EnhancedCarTuning.Core
                 State.SerializePreview = true;
                 try
                 {
-                    // Native callback saves XML, performs its normal network command, and closes the garage.
                     callback();
                     State.ApplyCommitted(chosen);
                     Confirmed = true;

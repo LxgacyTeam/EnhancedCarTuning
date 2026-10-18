@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EnhancedCarTuning.Appearance.Vinyls;
+using EnhancedCarTuning.Appearance.Glass;
 using EnhancedCarTuning.UI;
 using EnhancedCarTuning.Localization;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace EnhancedCarTuning.Appearance.UI
         private RawImage previewRaw;
         private bool manualNativeImgClick;
         private bool nativeImgWasActive;
-        private MenuButtonGroup symmetry, bold, italic, font;
+        private MenuButtonGroup symmetry, bold, italic, font, textSurface;
         private VinylStyleCheck boldCheck, italicCheck;
         private InputField input;
         private GameObject ownEventSystem;
@@ -122,6 +123,11 @@ namespace EnhancedCarTuning.Appearance.UI
                 bold.transform.SetParent(textPanel, false);
                 italic.transform.SetParent(textPanel, false);
                 font.transform.SetParent(textPanel, false);
+                textSurface = Button(factory, "TextSurface", "НАНЕСЕНИЕ: КУЗОВ", 4, 826, 250, 54, ToggleTextSurface);
+                textSurface.transform.SetParent(textPanel, false);
+                textSurface.text.ui.resizeTextForBestFit = true;
+                textSurface.text.ui.resizeTextMinSize = 16;
+                textSurface.text.ui.resizeTextMaxSize = 27;
                 bold.text.ui.fontStyle = FontStyle.Bold;
                 italic.text.ui.fontStyle = FontStyle.BoldAndItalic;
                 boldCheck = StyleCheck(bold);
@@ -268,6 +274,21 @@ namespace EnhancedCarTuning.Appearance.UI
             garage.carPaint.UpImage(); selected = null; Refresh();
         }
         private void SetStyle(int value) { style = value; QueueText(); }
+        private void ToggleTextSurface()
+        {
+            Flush();
+            var item = garage.editItem;
+            if (item == null || !TextVinylData.IsText(item.spriteName) ||
+                garage.GetComponent<GarageTuningPanel>()?.Session?.CanEdit != true) return;
+            var state = GlassPrototypeState.Ensure(garage.carPaint);
+            bool glass = GlassPrototypeState.IsGlass(item);
+            state.Scan();
+            if (!glass && (state.WindowCount == 0 || state.GlassCount >= 32)) return;
+            GlassPrototypeState.SetGlass(item, !glass);
+            garage.carPaint.needDraw = true;
+            garage.carPaint.UpImage();
+            Refresh();
+        }
         private void QueueText()
         {
             if (garage.editItem == null || !TextVinylData.IsText(garage.editItem.spriteName)) return;
@@ -313,6 +334,8 @@ namespace EnhancedCarTuning.Appearance.UI
             boldCheck.color = bold.text.ui.color;
             italicCheck.color = italic.text.ui.color;
             NativeMenuFactory.SetLabel(font, TextVinylData.Fonts[fontIndex]);
+            NativeMenuFactory.SetLabel(textSurface, GlassPrototypeState.IsGlass(item) ? "НАНЕСЕНИЕ: СТЕКЛА" : "НАНЕСЕНИЕ: КУЗОВ");
+            textSurface.nowButtonDissabe = !hasText || garage.GetComponent<GarageTuningPanel>()?.Session?.CanEdit != true;
             if (pending != null && Time.unscaledTime >= nextText) Flush();
             if (!menu.gameObject.activeInHierarchy) Flush();
             if (input && input.isFocused)
@@ -364,11 +387,13 @@ namespace EnhancedCarTuning.Appearance.UI
             const float padding = 8f, styleSide = 58f, inputHeight = 54f;
             float fontWidth = width - 2 * (styleSide + gap);
             float styleY = padding + inputHeight + 12f;
-            Place(textPanel, x - padding, inputY - padding, width + 2 * padding, styleY + styleSide + padding);
+            float surfaceY = styleY + styleSide + gap;
+            Place(textPanel, x - padding, inputY - padding, width + 2 * padding, surfaceY + inputHeight + padding);
             if (input) Place((RectTransform)input.transform, padding, padding, width, inputHeight);
             Place((RectTransform)bold.transform, padding, styleY, styleSide, styleSide);
             Place((RectTransform)italic.transform, padding + styleSide + gap, styleY, styleSide, styleSide);
             Place((RectTransform)font.transform, padding + 2 * (styleSide + gap), styleY, fontWidth, styleSide);
+            Place((RectTransform)textSurface.transform, padding, surfaceY, width, inputHeight);
         }
 
         private void HideNativeImgDecorations()

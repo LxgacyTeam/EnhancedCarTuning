@@ -5,6 +5,7 @@ using EnhancedCarTuning.Core;
 using EnhancedCarTuning.Persistence;
 using UnityEngine;
 using EnhancedCarTuning.Wheels.Suspension;
+using EnhancedCarTuning.Wheels.Models;
 
 namespace EnhancedCarTuning.Core
 {
@@ -16,6 +17,7 @@ namespace EnhancedCarTuning.Core
         internal TuningSettings Active { get; private set; } = TuningSettings.Stock;
         internal bool SerializePreview { get; set; }
         internal WheelService WheelService { get; private set; }
+        internal WheelModelService WheelModels { get; private set; }
         private EngineProfile stockEngine;
         private bool[] stockDrive;
         private bool initialized;
@@ -30,6 +32,7 @@ namespace EnhancedCarTuning.Core
                 state.stockEngine = EngineProfile.Capture(car.ph_car.engine);
                 state.stockDrive = DriveService.Capture(car);
                 state.WheelService = new WheelService(car);
+                state.WheelModels = new WheelModelService(car);
                 state.initialized = true;
             }
             return state;
@@ -51,7 +54,7 @@ namespace EnhancedCarTuning.Core
                 profile.Apply(Car.ph_car.engine);
             }
             if (settings.Drive != Active.Drive) DriveService.Apply(Car, settings.Drive, stockDrive);
-            if (!settings.Wheels.Equals(Active.Wheels)) WheelService.Apply(settings.Wheels);
+            if (!settings.Wheels.Equals(Active.Wheels)) { WheelService.Apply(settings.Wheels); WheelModels.Apply(settings.Wheels); }
             Active = settings;
         }
 
@@ -72,6 +75,12 @@ namespace EnhancedCarTuning.Core
 
         internal void ApplyCommitted(TuningSettings settings)
         {
+            var wheels = settings.Wheels;
+            if (!WheelModelCatalog.IsKnown(wheels.Front.ModelId)) wheels = wheels.WithModel(AxleTarget.Front, "stock");
+            if (!WheelModelCatalog.IsKnown(wheels.Rear.ModelId)) wheels = wheels.WithModel(AxleTarget.Rear, "stock");
+            if (!EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(wheels.Front.TireId)) wheels = wheels.WithTire(AxleTarget.Front, "stock");
+            if (!EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(wheels.Rear.TireId)) wheels = wheels.WithTire(AxleTarget.Rear, "stock");
+            if (!wheels.Equals(settings.Wheels)) settings = new TuningSettings(settings.EngineId, settings.Drive, wheels);
             if (!EngineCatalog.IsKnown(settings.EngineId))
             {
                 Plugin.Warn("Unknown engine '" + settings.EngineId + "': restoring this vehicle's stock engine.");
@@ -114,6 +123,7 @@ namespace EnhancedCarTuning.Core
             SerializePreview = false;
         }
 
-        private void OnDestroy() { WheelService?.Dispose(); }
+        private void LateUpdate() { WheelModels?.Refresh(); }
+        private void OnDestroy() { WheelModels?.Dispose(); WheelService?.Dispose(); }
     }
 }

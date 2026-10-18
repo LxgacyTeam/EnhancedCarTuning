@@ -66,15 +66,17 @@ namespace EnhancedCarTuning.UI
         internal static void SetLabel(MenuButtonGroup button, string value)
         {
             foreach (var text in button.GetComponentsInChildren<Text>(true))
-            {
-                localized.GetValue(text, _ => new LocalizedLabel()).Source = value;
-                text.text = ECTLocalization.T(value);
-                var replacementFont = EmbeddedAssets.UiFont("BebasNeue");
-                if (replacementFont) text.font = replacementFont;
-                text.resizeTextForBestFit = true;
-                text.resizeTextMinSize = 12;
-                text.resizeTextMaxSize = Mathf.Max(18, text.fontSize);
-            }
+                SetLabel(text, value);
+        }
+        internal static void SetLabel(Text text, string value)
+        {
+            localized.GetValue(text, _ => new LocalizedLabel()).Source = value;
+            text.text = ECTLocalization.T(value);
+            var replacementFont = EmbeddedAssets.UiFont("BebasNeue");
+            if (replacementFont) text.font = replacementFont;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 12;
+            text.resizeTextMaxSize = Mathf.Max(18, text.fontSize);
         }
 
         internal static void RefreshLocalizedLabels(Transform scope)
