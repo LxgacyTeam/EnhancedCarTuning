@@ -20,6 +20,7 @@ namespace EnhancedCarTuning.Wheels.UI
         private string title, unit;
         private bool dragging, editable;
         private float current;
+        private float minimum, maximum;
 
         internal void Initialize(MenuSliderPanel native, GarageSession owner, Func<AxleTarget> selected, WheelParameter kind, string label, string suffix, Font font)
         {
@@ -35,8 +36,8 @@ namespace EnhancedCarTuning.Wheels.UI
                 WheelGarageView.Fit(panel.panel.rectTransform, 0, 0, 1, 1);
             }
             panel.panel.color = new Color(0.22f, 0.27f, 0.29f, 0.88f);
-            Label(panel.text.ui, font, 0.06f, 0.45f, 0.67f, 0.96f, TextAnchor.MiddleLeft);
-            Label(panel.value, font, 0.66f, 0.45f, 0.95f, 0.96f, TextAnchor.MiddleRight);
+            WheelControlLabels.Format(panel.text.ui, transform, font, false);
+            WheelControlLabels.Format(panel.value, transform, font, true);
             panel.text.ui.text = ECTLocalization.T(title);
             panel.hRoot.transform.SetParent(transform, false);
             WheelGarageView.Fit(panel.hRoot.rectTransform, 0.07f, 0.23f, 0.93f, 0.27f);
@@ -50,23 +51,15 @@ namespace EnhancedCarTuning.Wheels.UI
             Refresh();
         }
 
-        private void Label(Text text, Font font, float x1, float y1, float x2, float y2, TextAnchor align)
-        {
-            text.transform.SetParent(transform, false);
-            WheelGarageView.Fit(text.rectTransform, x1, y1, x2, y2);
-            text.font = font; text.fontSize = 34; text.resizeTextForBestFit = true;
-            text.resizeTextMinSize = 16; text.resizeTextMaxSize = 34;
-            text.alignment = align; text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate; text.color = new Color(0.88f, 0.9f, 0.91f);
-        }
-
         internal void Refresh()
         {
             bool found = session.State.WheelService.Read(session.Selection.Draft.Wheels, axle(), parameter, out current, out bool mixed);
+            session.State.WheelService.Range(axle(), parameter, out minimum, out maximum);
             editable = found && session.CanEdit && CanReceiveInput();
             panel.text.ui.text = ECTLocalization.T(title);
-            panel.value.text = !found ? "—" : mixed ? ECTLocalization.T("Разные") : current.ToString("0.#", CultureInfo.InvariantCulture) + ECTLocalization.T(unit);
-            float t = Mathf.InverseLerp(WheelLimits.Min(parameter), WheelLimits.Max(parameter), current);
+            float shown = parameter == WheelParameter.RimDiameter ? current * .5f : current;
+            panel.value.text = !found ? "—" : mixed ? ECTLocalization.T("Разные") : shown.ToString("0.#", CultureInfo.InvariantCulture) + ECTLocalization.T(unit);
+            float t = Mathf.InverseLerp(minimum, maximum, current);
             var thumb = panel.hPoint.rectTransform;
             thumb.anchorMin = thumb.anchorMax = new Vector2(t, 0.5f); thumb.anchoredPosition = Vector2.zero;
             panel.panel.color = new Color(0.22f, 0.27f, 0.29f, editable ? 0.88f : 0.45f);
@@ -86,7 +79,7 @@ namespace EnhancedCarTuning.Wheels.UI
             {
                 Vector2 pos = Vector2.zero;
                 panel.hRoot.rectTransform.MouseOrHead_LocalPos(ref pos);
-                Set(Mathf.Round(Mathf.Lerp(WheelLimits.Min(parameter), WheelLimits.Max(parameter), Mathf.Clamp01(pos.x))));
+                Set(Mathf.Round(Mathf.Lerp(minimum, maximum, Mathf.Clamp01(pos.x))));
             }
             else if (focused == this)
             {
@@ -97,7 +90,7 @@ namespace EnhancedCarTuning.Wheels.UI
 
         private void Set(float value)
         {
-            value = Mathf.Clamp(value, WheelLimits.Min(parameter), WheelLimits.Max(parameter));
+            value = Mathf.Clamp(value, minimum, maximum);
             session.SelectWheel(axle(), parameter, value); Refresh();
         }
         private void OnDisable() { dragging = false; if (focused == this) focused = null; }

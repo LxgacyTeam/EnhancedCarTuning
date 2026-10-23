@@ -15,7 +15,7 @@ namespace EnhancedCarTuning.Configuration
                 id: "ect.graphics.vinyl_resolution",
                 group: "Render",
                 position: new Vector2(0f, -656f),
-                label: new LegacyLocalizedText("Vinyl canvas resolution", "Разрешение полотна винилов"),
+                label: new LegacyLocalizedText("Vinyl resolution", "Разрешение винилов"),
                 binding: LegacyTextChoiceSettingBinding.PlayerPrefsIndex(
                     key: TuningConfig.VinylResolutionKey + ".Index",
                     defaultIndex: ResolutionToIndex(TuningConfig.VinylTextureResolution),

@@ -8,6 +8,11 @@ namespace EnhancedCarTuning.Resources
     // Only managed bytes leave this assembly. The runtime consumes and owns Unity textures/sprites.
     public static class ResourceContainer
     {
+#if ECT_LINUX
+        public static string Platform => "Linux";
+#else
+        public static string Platform => "Windows";
+#endif
         private const string Prefix = "EnhancedCarTuning.Resources.";
         private static readonly string[] fontResources = DiscoverFonts();
         public static int RasterFontCount => fontResources.Length;

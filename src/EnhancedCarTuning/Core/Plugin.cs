@@ -13,7 +13,7 @@ using EnhancedCarTuning.Appearance.Police;
 
 namespace EnhancedCarTuning
 {
-    [BepInPlugin(Id, "EnhancedCarTuning", "1.0.0")]
+    [BepInPlugin(Id, "EnhancedCarTuning", "1.1.0")]
     [BepInDependency("com.bigcitylegacy.baseplugin", BepInDependency.DependencyFlags.HardDependency)]
     public sealed class Plugin : BaseUnityPlugin
     {
@@ -73,6 +73,10 @@ namespace EnhancedCarTuning
             }
             foreach (var paint in UnityEngine.Resources.FindObjectsOfTypeAll<BodyPaintState>())
             { paint.ResetForPool(); Destroy(paint); }
+            foreach (var glass in UnityEngine.Resources.FindObjectsOfTypeAll<EnhancedCarTuning.Appearance.Glass.GlassPrototypeState>())
+            { glass.Reset(); Destroy(glass); }
+            foreach (var ui in UnityEngine.Resources.FindObjectsOfTypeAll<EnhancedCarTuning.Appearance.Glass.GlassGaragePrototype>()) Destroy(ui);
+            EnhancedCarTuning.Appearance.Glass.GlassPrototypeAssets.Clear();
             VinylRenderTextures.Clear();
             harmony?.UnpatchSelf();
             EngineCatalog.Reset();

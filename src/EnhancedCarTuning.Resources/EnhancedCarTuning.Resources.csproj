@@ -1,14 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
+    <IntermediateOutputPath>obj\$(Configuration)\$(ResourcesPlatform)\</IntermediateOutputPath>
     <AssemblyName>EnhancedCarTuning.Resources</AssemblyName>
     <RootNamespace>EnhancedCarTuning.Resources</RootNamespace>
     <Version>1.4.2</Version>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <OutputPath>bin\$(Configuration)\$(ResourcesPlatform)\</OutputPath>
+    <DefineConstants Condition="'$(ResourcesPlatform)' == 'Linux'">$(DefineConstants);ECT_LINUX</DefineConstants>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="assets\*.png;assets\fonts\*.png;assets\*.bundle;assets\primitives\*.png" LogicalName="EnhancedCarTuning.Resources.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="assets\*.png;assets\fonts\*.png;assets\$(ResourcesPlatform)\*.bundle;assets\primitives\*.png" LogicalName="EnhancedCarTuning.Resources.%(Filename)%(Extension)" />
     <EmbeddedResource Include="assets\fonts\**\*.otf;assets\fonts\**\*.ttf" WithCulture="false" />
   </ItemGroup>
+  <Target Name="ValidateResourcesPlatform" BeforeTargets="BeforeBuild">
+    <Error Condition="'$(ResourcesPlatform)' != 'Windows' and '$(ResourcesPlatform)' != 'Linux'" Text="ResourcesPlatform must be Windows or Linux." />
+    <Error Condition="!Exists('assets\$(ResourcesPlatform)\ect-rims.bundle') or !Exists('assets\$(ResourcesPlatform)\ect-tires.bundle') or !Exists('assets\$(ResourcesPlatform)\glass-prototype.bundle')" Text="Build the platform asset bundles with Unity 2019.1.8f1 first." />
+  </Target>
 </Project>

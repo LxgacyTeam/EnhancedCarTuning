@@ -16,6 +16,7 @@ namespace EnhancedCarTuning.Patches
     {
         private static bool Prefix(MenuFocusManager __instance)
         {
+            if(ColorPickerHex.AnyTyping)return false;
             var garage = __instance.GetComponentInParent<CarGarageUI>();
             var panel = garage ? garage.GetComponent<GarageTuningPanel>() : null;
             return !panel || !panel.IsTypingVinyl;
@@ -145,6 +146,7 @@ namespace EnhancedCarTuning.Patches
         private static void DrawGeometry(CarPaintItems paint, CarPaintItems.Item item, CommandBuffer buffer, Camera camera,
             MeshLoadFromResources[] meshes, Material body, Material material)
         {
+            if (EnhancedCarTuning.Appearance.Glass.GlassPrototypeState.IsGlass(item)) return;
             var state = paint.GetComponent<BodyPaintState>();
             if (!state || state.Renderer == null || state.Active.IsEmpty) paint.DrawIt(item, buffer, camera, meshes, body, material);
             else state.Renderer.DrawGeometry(paint, item, buffer, camera, meshes, body, material);

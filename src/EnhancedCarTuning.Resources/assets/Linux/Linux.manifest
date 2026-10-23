@@ -1,0 +1,13 @@
+ManifestFileVersion: 0
+CRC: 1321918672
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: ect-rims.bundle
+      Dependencies: {}
+    Info_1:
+      Name: ect-tires.bundle
+      Dependencies: {}
+    Info_2:
+      Name: glass-prototype.bundle
+      Dependencies: {}

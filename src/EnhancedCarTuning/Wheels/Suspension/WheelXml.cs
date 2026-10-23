@@ -24,7 +24,7 @@ namespace EnhancedCarTuning.Wheels.Suspension
                 var values = AxleSettings.Stock;
                 foreach (XmlAttribute attr in axle.Attributes)
                 {
-                    if (!System.Enum.TryParse(attr.Name, out WheelParameter p) || p.ToString() != attr.Name) return false;
+                    if (!System.Enum.TryParse(attr.Name, out WheelParameter p) || p.ToString() != attr.Name || (int)p > (int)WheelParameter.Camber) return false;
                     if (!float.TryParse(attr.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out float v) || !WheelLimits.Valid(p, v)) return false;
                     values = values.With(p, v);
                 }
@@ -35,17 +35,19 @@ namespace EnhancedCarTuning.Wheels.Suspension
 
         internal static void Write(XmlElement tuning, WheelSettings settings)
         {
-            if (settings.Equals(WheelSettings.Stock)) return;
+            if (!HasParameters(settings.Front) && !HasParameters(settings.Rear)) return;
             var wheels = tuning.OwnerDocument.CreateElement("Wheels"); tuning.AppendChild(wheels);
             WriteAxle(wheels, "Front", settings.Front); WriteAxle(wheels, "Rear", settings.Rear);
         }
         private static void WriteAxle(XmlElement wheels, string name, AxleSettings settings)
         {
-            if (settings.IsStock) return;
+            if (!HasParameters(settings)) return;
             var axle = wheels.OwnerDocument.CreateElement(name);
             foreach (var p in WheelLimits.Parameters)
                 if (settings.Get(p).HasValue) axle.SetAttribute(p.ToString(), settings.Get(p).Value.ToString("R", CultureInfo.InvariantCulture));
             wheels.AppendChild(axle);
         }
+        private static bool HasParameters(AxleSettings settings)
+        { foreach (var p in WheelLimits.Parameters) if (settings.Get(p).HasValue) return true; return false; }
     }
 }
