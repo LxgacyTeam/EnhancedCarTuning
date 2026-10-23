@@ -20,6 +20,7 @@ namespace EnhancedCarTuning.Persistence
             settings = TuningSettings.Stock;
             error = null;
             if (root == null) return true;
+            if (!EnhancedCarTuning.Appearance.Parts.BodyPartsXml.TryRead(root,out _)) { error="Недопустимые параметры деталей кузова.";return false; }
             if (!VinylXml.Validate(root)) { error = "Недопустимые текстовые винилы или симметрия."; return false; }
             var glassNodes = root.SelectNodes(EnhancedCarTuning.Appearance.Glass.GlassPrototypeXml.Node);
             if (glassNodes.Count > 1 || (glassNodes.Count == 1 && !EnhancedCarTuning.Appearance.Glass.GlassPrototypeXml.Validate(glassNodes[0] as XmlElement)))
@@ -60,7 +61,7 @@ namespace EnhancedCarTuning.Persistence
             { error = "Недопустимые параметры колёс."; return false; }
             if (tuning != null && tuning.GetAttribute("version") == "1" && tuning.SelectSingleNode("Wheels") != null)
             { error = "Параметрам колёс требуется версия XML 2."; return false; }
-            if (!WheelModelXml.Read(root, wheels, out wheels) || !RimSizeXml.Read(root, wheels, out wheels) || !EnhancedCarTuning.Wheels.Tires.TireXml.Read(root, wheels, out wheels))
+            if (!WheelModelXml.Read(root, wheels, out wheels) || !RimSizeXml.Read(root, wheels, out wheels) || !RimPaintXml.Read(root, wheels, out wheels))
             { error = "Недопустимые модели или размеры дисков."; return false; }
             settings = new TuningSettings(engine, layout, wheels);
             return true;
@@ -97,7 +98,7 @@ namespace EnhancedCarTuning.Persistence
             root.AppendChild(element);
             WheelModelXml.Write(root, settings.Wheels);
             RimSizeXml.Write(root, settings.Wheels);
-            EnhancedCarTuning.Wheels.Tires.TireXml.Write(root, settings.Wheels);
+            RimPaintXml.Write(root, settings.Wheels);
         }
     }
 }

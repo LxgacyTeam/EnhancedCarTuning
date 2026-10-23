@@ -7,6 +7,31 @@ namespace EnhancedCarTuning
 {
     public static class VinylPortBridge
     {
+        private static CarControl paintTarget;
+        internal static bool IsApplyingPaint(CarControl car) { return paintTarget && paintTarget == car; }
+
+        public static void ApplyGaragePaintXml(CarGarageUI garage, string xml)
+        {
+            if (!garage || !garage.car) throw new InvalidOperationException("No garage car");
+            var document = new System.Xml.XmlDocument { XmlResolver = null };
+            using (var reader = System.Xml.XmlReader.Create(new System.IO.StringReader(xml), new System.Xml.XmlReaderSettings {
+                DtdProcessing = System.Xml.DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 2 * 1024 * 1024 })) document.Load(reader);
+            var panel = garage.GetComponent<GarageTuningPanel>();
+            panel?.FlushVinyls(); panel?.FlushBodyPaint();
+            garage.CarPaint_Finish();
+            var previous = paintTarget;
+            try
+            {
+                paintTarget = garage.car;
+                garage.car.GetComponent<CarMaterial>().SaveLoad(document.DocumentElement, false);
+                garage.car.paintItems.SaveLoad(document.DocumentElement, false);
+                garage.car.paintItems.UpImage();
+                panel?.BodyPaintSession?.RebaseImported();
+                panel?.RefreshImportedBodyPaint(true);
+            }
+            finally { paintTarget = previous; }
+        }
+
         public static string CaptureGarageXml(CarGarageUI garage)
         {
             if (!garage || !garage.car) throw new InvalidOperationException("No garage car");

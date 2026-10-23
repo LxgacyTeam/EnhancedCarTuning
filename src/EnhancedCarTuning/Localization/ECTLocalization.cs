@@ -8,12 +8,20 @@ namespace EnhancedCarTuning.Localization
         // The game supplies its language through SettingsValues. Use English for untranslated locales.
         private static readonly Dictionary<string, string> en = new Dictionary<string, string>(StringComparer.Ordinal)
         {
+            { "Детали кузова", "Body parts" }, { "ДЕТАЛИ КУЗОВА", "BODY PARTS" },
+            { "ПЕРЕДНИЕ ДВЕРИ", "FRONT DOORS" }, { "ЗАДНИЕ ДВЕРИ", "REAR DOORS" },
+            { "КРЫЛЬЯ", "FENDERS" }, { "КЕНГУРЯТНИК", "BULL BAR" }, { "КАРКАС", "CAGE" },
+            { "КРЫША", "ROOF" }, { "РЕШЕТКА РАД.", "GRILLE" }, { "ЛЮК", "SUNROOF" }, { "Люк", "Sunroof" },
+            { "ГРУЗОВОЙ КУЗОВ", "TRUCK BED" }, { "НЕТ", "NONE" },
             { "Полицейская окраска", "Police paint" },
             { "ПОКРАСКА", "PAINT" }, { "ПОКРАСКА АВТО", "CAR PAINT" },
             { "ПОКРАСКА КУЗОВА", "BODY PAINT" }, { "ОБЩИЙ ЦВЕТ", "BASE COLOR" },
             { "СТЕКЛА", "WINDOWS" }, { "ПОКРАСКА СТЕКОЛ", "WINDOW PAINT" }, { "Покраска стекол", "Paint windows" },
+            { "ФАРЫ", "LIGHTS" }, { "ПОКРАСКА ФАР", "LIGHT TINT" }, { "ПЕРЕДНИЕ", "FRONT" }, { "ЗАДНИЕ", "REAR" },
+            { "РАДИУС КОЛЕСА", "WHEEL RADIUS" }, { "РАДИУС ДИСКА", "RIM RADIUS" }, { "ПОКРАСКА ДИСКОВ", "RIM PAINT" },
+            { "ВНЕШНЯЯ ЧАСТЬ", "OUTER PART" }, { "ВНУТРЕННЯЯ ЧАСТЬ", "INNER PART" },
             { "ПЕРЕД", "FRONT" }, { "ЗАД", "REAR" }, { "СЕРЕДИНА", "SIDES" },
-            { "ТОНИРОВКА", "TINT" }, { "СБРОСИТЬ ВЫБРАННОЕ", "RESET SELECTED" },
+            { "ПРОЗРАЧНОСТЬ", "TINT" }, { "СБРОСИТЬ ВЫБРАННОЕ", "RESET SELECTED" },
             { "НАНЕСЕНИЕ: КУЗОВ", "SURFACE: BODY" }, { "НАНЕСЕНИЕ: СТЕКЛА", "SURFACE: WINDOWS" },
             { "КУЗОВ", "BODY" }, { "КАПОТ", "HOOD" }, { "ПЕРЕДНИЙ БАМПЕР", "FRONT BUMPER" },
             { "БАГАЖНИК", "TRUNK" }, { "ЗАДНИЙ БАМПЕР", "REAR BUMPER" }, { "ДВЕРИ", "DOORS" },

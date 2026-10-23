@@ -1,0 +1,374 @@
+{
+    "version": 1,
+    "models": [
+        {
+            "id": "rim_01",
+            "name": "SB 01",
+            "left": "rims/01/left",
+            "right": "rims/01/right",
+            "sourceModel": 1,
+            "leftRadius": 0.9995542168617249,
+            "rightRadius": 0.9995543360710144
+        },
+        {
+            "id": "rim_02",
+            "name": "SB 02",
+            "left": "rims/02/left",
+            "right": "rims/02/right",
+            "sourceModel": 2,
+            "leftRadius": 1.023800015449524,
+            "rightRadius": 1.023800015449524
+        },
+        {
+            "id": "rim_03",
+            "name": "SB 03",
+            "left": "rims/03/left",
+            "right": "rims/03/right",
+            "sourceModel": 3,
+            "leftRadius": 0.9995542764663696,
+            "rightRadius": 0.999554455280304
+        },
+        {
+            "id": "rim_05",
+            "name": "SB 05",
+            "left": "rims/05/left",
+            "right": "rims/05/right",
+            "sourceModel": 5,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_06",
+            "name": "SB 06",
+            "left": "rims/06/left",
+            "right": "rims/06/right",
+            "sourceModel": 6,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_07",
+            "name": "SB 07",
+            "left": "rims/07/left",
+            "right": "rims/07/right",
+            "sourceModel": 7,
+            "leftRadius": 1.0007679462432862,
+            "rightRadius": 1.0007679462432862
+        },
+        {
+            "id": "rim_08",
+            "name": "SB 08",
+            "left": "rims/08/left",
+            "right": "rims/08/right",
+            "sourceModel": 8,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_09",
+            "name": "SB 09",
+            "left": "rims/09/left",
+            "right": "rims/09/right",
+            "sourceModel": 9,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_10",
+            "name": "SB 10",
+            "left": "rims/10/left",
+            "right": "rims/10/right",
+            "sourceModel": 10,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_12",
+            "name": "SB 12",
+            "left": "rims/12/left",
+            "right": "rims/12/right",
+            "sourceModel": 12,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_13",
+            "name": "SB 13",
+            "left": "rims/13/left",
+            "right": "rims/13/right",
+            "sourceModel": 13,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_14",
+            "name": "SB 14",
+            "left": "rims/14/left",
+            "right": "rims/14/right",
+            "sourceModel": 14,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_15",
+            "name": "SB 15",
+            "left": "rims/15/left",
+            "right": "rims/15/right",
+            "sourceModel": 15,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_16",
+            "name": "SB 16",
+            "left": "rims/16/left",
+            "right": "rims/16/right",
+            "sourceModel": 16,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_17",
+            "name": "SB 17",
+            "left": "rims/17/left",
+            "right": "rims/17/right",
+            "sourceModel": 17,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_18",
+            "name": "SB 18",
+            "left": "rims/18/left",
+            "right": "rims/18/right",
+            "sourceModel": 18,
+            "leftRadius": 1.0007678270339966,
+            "rightRadius": 1.0007679462432862
+        },
+        {
+            "id": "rim_19",
+            "name": "SB 19",
+            "left": "rims/19/left",
+            "right": "rims/19/right",
+            "sourceModel": 19,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_20",
+            "name": "SB 20",
+            "left": "rims/20/left",
+            "right": "rims/20/right",
+            "sourceModel": 20,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_21",
+            "name": "SB 21",
+            "left": "rims/21/left",
+            "right": "rims/21/right",
+            "sourceModel": 21,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_22",
+            "name": "SB 22",
+            "left": "rims/22/left",
+            "right": "rims/22/right",
+            "sourceModel": 22,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007679462432862
+        },
+        {
+            "id": "rim_24",
+            "name": "SB 24",
+            "left": "rims/24/left",
+            "right": "rims/24/right",
+            "sourceModel": 24,
+            "leftRadius": 1.0007679462432862,
+            "rightRadius": 1.0007679462432862
+        },
+        {
+            "id": "rim_25",
+            "name": "SB 25",
+            "left": "rims/25/left",
+            "right": "rims/25/right",
+            "sourceModel": 25,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_26",
+            "name": "SB 26",
+            "left": "rims/26/left",
+            "right": "rims/26/right",
+            "sourceModel": 26,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_27",
+            "name": "SB 27",
+            "left": "rims/27/left",
+            "right": "rims/27/right",
+            "sourceModel": 27,
+            "leftRadius": 1.0007679462432862,
+            "rightRadius": 1.0007679462432862
+        },
+        {
+            "id": "rim_28",
+            "name": "SB 28",
+            "left": "rims/28/left",
+            "right": "rims/28/right",
+            "sourceModel": 28,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_29",
+            "name": "SB 29",
+            "left": "rims/29/left",
+            "right": "rims/29/right",
+            "sourceModel": 29,
+            "leftRadius": 1.0007679462432862,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_30",
+            "name": "SB 30",
+            "left": "rims/30/left",
+            "right": "rims/30/right",
+            "sourceModel": 30,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_31",
+            "name": "SB 31",
+            "left": "rims/31/left",
+            "right": "rims/31/right",
+            "sourceModel": 31,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_32",
+            "name": "SB 32",
+            "left": "rims/32/left",
+            "right": "rims/32/right",
+            "sourceModel": 32,
+            "leftRadius": 1.0007679462432862,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_33",
+            "name": "SB 33",
+            "left": "rims/33/left",
+            "right": "rims/33/right",
+            "sourceModel": 33,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_34",
+            "name": "SB 34",
+            "left": "rims/34/left",
+            "right": "rims/34/right",
+            "sourceModel": 34,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_35",
+            "name": "SB 35",
+            "left": "rims/35/left",
+            "right": "rims/35/right",
+            "sourceModel": 35,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_36",
+            "name": "SB 36",
+            "left": "rims/36/left",
+            "right": "rims/36/right",
+            "sourceModel": 36,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_37",
+            "name": "SB 37",
+            "left": "rims/37/left",
+            "right": "rims/37/right",
+            "sourceModel": 37,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007679462432862
+        },
+        {
+            "id": "rim_38",
+            "name": "SB 38",
+            "left": "rims/38/left",
+            "right": "rims/38/right",
+            "sourceModel": 38,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007679462432862
+        },
+        {
+            "id": "rim_39",
+            "name": "SB 39",
+            "left": "rims/39/left",
+            "right": "rims/39/right",
+            "sourceModel": 39,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_40",
+            "name": "SB 40",
+            "left": "rims/40/left",
+            "right": "rims/40/right",
+            "sourceModel": 40,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_41",
+            "name": "SB 41",
+            "left": "rims/41/left",
+            "right": "rims/41/right",
+            "sourceModel": 41,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_42",
+            "name": "SB 42",
+            "left": "rims/42/left",
+            "right": "rims/42/right",
+            "sourceModel": 42,
+            "leftRadius": 1.0007680654525757,
+            "rightRadius": 1.0007679462432862
+        },
+        {
+            "id": "rim_43",
+            "name": "SB 43",
+            "left": "rims/43/left",
+            "right": "rims/43/right",
+            "sourceModel": 43,
+            "leftRadius": 1.0007679462432862,
+            "rightRadius": 1.0007680654525757
+        },
+        {
+            "id": "rim_44",
+            "name": "SB 44",
+            "left": "rims/44/left",
+            "right": "rims/44/right",
+            "sourceModel": 44,
+            "leftRadius": 1.0065902471542359,
+            "rightRadius": 1.0065902471542359
+        }
+    ]
+}

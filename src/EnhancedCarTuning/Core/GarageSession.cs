@@ -48,8 +48,17 @@ namespace EnhancedCarTuning.Core
 
         internal void SelectWheel(AxleTarget axle, WheelParameter parameter, float value)
         {
-            if (!CanEdit || !WheelLimits.Valid(parameter, value)) return;
-            Selection.SelectWheels(Selection.Draft.Wheels.With(axle, parameter, value));
+            if (!CanEdit || !WheelLimits.Valid(parameter, value) || parameter == WheelParameter.Radius && value > WheelVehicleLimits.ForCar(State.Car)) return;
+            var wheels=Selection.Draft.Wheels;
+            if(parameter==WheelParameter.Radius)
+                foreach(var side in new[]{AxleTarget.Front,AxleTarget.Rear})
+                {
+                    if(axle!=AxleTarget.Both&&axle!=side)continue;
+                    if(State.WheelService.Read(wheels,side,WheelParameter.Radius,out float previous,out _)&&
+                        State.WheelService.Read(wheels,side,WheelParameter.RimDiameter,out float rim,out _))
+                        wheels=wheels.With(side,WheelParameter.RimDiameter,EnhancedCarTuning.Wheels.Rims.RimSizing.ScaleDiameter(rim,previous,value));
+                }
+            Selection.SelectWheels(wheels.With(axle, parameter, value));
             State.Preview(Selection.Draft);
         }
 
@@ -60,10 +69,15 @@ namespace EnhancedCarTuning.Core
             State.Preview(Selection.Draft);
         }
 
-        internal void SelectTire(AxleTarget axle, string id)
+        internal void SelectRimPaint(AxleTarget axle, int mask, EnhancedCarTuning.Appearance.Body.PaintFinish finish, EnhancedCarTuning.Appearance.Body.PaintFinish fallback)
         {
-            if (!CanEdit || !EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(id)) return;
-            Selection.SelectWheels(Selection.Draft.Wheels.WithTire(axle, id));
+            if (!CanEdit || mask < 1 || mask > 3 || finish == null) return;
+            var wheels = Selection.Draft.Wheels;
+            if (axle != AxleTarget.Rear)
+            { if (wheels.Front.OuterFinish == null) wheels = wheels.WithPaint(AxleTarget.Front,1,fallback); if (wheels.Front.InnerFinish == null) wheels = wheels.WithPaint(AxleTarget.Front,2,fallback); }
+            if (axle != AxleTarget.Front)
+            { if (wheels.Rear.OuterFinish == null) wheels = wheels.WithPaint(AxleTarget.Rear,1,fallback); if (wheels.Rear.InnerFinish == null) wheels = wheels.WithPaint(AxleTarget.Rear,2,fallback); }
+            Selection.SelectWheels(wheels.WithPaint(axle, mask, finish));
             State.Preview(Selection.Draft);
         }
 

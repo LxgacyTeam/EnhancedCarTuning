@@ -26,7 +26,7 @@ namespace EnhancedCarTuning.Appearance.Glass
             if (groups.Count > 0)
             {
                 var groupNode = root.OwnerDocument.CreateElement("Groups");
-                for (int i = 0; i < 3; i++) if (groups.TryGetValue((GlassGroup)i, out var setting))
+                for (int i = 0; i < GlassGroupPaint.GroupCount; i++) if (groups.TryGetValue((GlassGroup)i, out var setting))
                 {
                     var group = root.OwnerDocument.CreateElement("Group"); group.SetAttribute("id", ((GlassGroup)i).ToString());
                     group.SetAttribute("tint", Number(setting.Tint.r) + " " + Number(setting.Tint.g) + " " + Number(setting.Tint.b) + " " + Number(setting.Tint.a));
@@ -54,7 +54,7 @@ namespace EnhancedCarTuning.Appearance.Glass
             if (groupNodes.Count > 1) return false;
             if (groupNodes.Count == 1)
             {
-                if (groupNodes[0].ChildNodes.Count > 3) return false;
+                if (groupNodes[0].ChildNodes.Count > GlassGroupPaint.GroupCount) return false;
                 int seen = 0;
                 foreach (XmlNode child in groupNodes[0].ChildNodes)
                 {

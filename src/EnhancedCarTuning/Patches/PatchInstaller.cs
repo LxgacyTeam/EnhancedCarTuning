@@ -7,12 +7,20 @@ namespace EnhancedCarTuning.Patches
         internal static void Install(Harmony harmony)
         {
             harmony.CreateClassProcessor(typeof(CarAwakePatch)).Patch();
+            harmony.CreateClassProcessor(typeof(BodyPartsSavePatch)).Patch();
+            harmony.CreateClassProcessor(typeof(BodyPartsUpgradePatch)).Patch();
+            harmony.CreateClassProcessor(typeof(BodyPartsFixPatch)).Patch();
+            harmony.CreateClassProcessor(typeof(BodyPartsLoadedPatch)).Patch();
+            harmony.CreateClassProcessor(typeof(ColorPickerHexCreatePatch)).Patch();
+            harmony.CreateClassProcessor(typeof(ColorPickerHexSizePatch)).Patch();
+            harmony.CreateClassProcessor(typeof(ColorPickerHexTypingPatch)).Patch();
             harmony.CreateClassProcessor(typeof(CarPoolPatch)).Patch();
             harmony.CreateClassProcessor(typeof(GarageInitPatch)).Patch();
             harmony.CreateClassProcessor(typeof(GarageTitlePatch)).Patch();
             harmony.CreateClassProcessor(typeof(GarageItemsPatch)).Patch();
             harmony.CreateClassProcessor(typeof(GarageBuyPatch)).Patch();
             harmony.CreateClassProcessor(typeof(GaragePointerPatch)).Patch();
+            harmony.CreateClassProcessor(typeof(GarageVinylAlignPointerPatch)).Patch();
             harmony.CreateClassProcessor(typeof(GarageCameraPatch)).Patch();
             harmony.CreateClassProcessor(typeof(PrimitiveVinylTexturePatch)).Patch();
             harmony.CreateClassProcessor(typeof(PrimitiveCatalogIconPatch)).Patch();
@@ -25,10 +33,13 @@ namespace EnhancedCarTuning.Patches
             harmony.CreateClassProcessor(typeof(DeliveryPatch)).Patch();
             harmony.CreateClassProcessor(typeof(NetworkStopPatch)).Patch();
             harmony.CreateClassProcessor(typeof(WheelCamberPatch)).Patch();
+            harmony.CreateClassProcessor(typeof(WheelModelKilledPatch)).Patch();
+            harmony.CreateClassProcessor(typeof(WheelModelFixPatch)).Patch();
             harmony.CreateClassProcessor(typeof(MenuPreviewPositionPatch)).Patch();
             harmony.CreateClassProcessor(typeof(VinylSavePatch)).Patch();
             harmony.CreateClassProcessor(typeof(VinylChangesPatch)).Patch();
             harmony.CreateClassProcessor(typeof(TextVinylLookupPatch)).Patch();
+            harmony.CreateClassProcessor(typeof(TextVinylDefaultSizePatch)).Patch();
             harmony.CreateClassProcessor(typeof(TextVinylTexturePatch)).Patch();
             harmony.CreateClassProcessor(typeof(TextVinylLoadedPatch)).Patch();
             harmony.CreateClassProcessor(typeof(VinylSymmetryPatch)).Patch();

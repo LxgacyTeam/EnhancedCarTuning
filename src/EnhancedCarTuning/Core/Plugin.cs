@@ -13,7 +13,7 @@ using EnhancedCarTuning.Appearance.Police;
 
 namespace EnhancedCarTuning
 {
-    [BepInPlugin(Id, "EnhancedCarTuning", "1.0.0")]
+    [BepInPlugin(Id, "EnhancedCarTuning", "1.1.0")]
     [BepInDependency("com.bigcitylegacy.baseplugin", BepInDependency.DependencyFlags.HardDependency)]
     public sealed class Plugin : BaseUnityPlugin
     {

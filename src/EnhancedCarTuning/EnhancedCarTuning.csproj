@@ -4,7 +4,7 @@
     <RootNamespace>EnhancedCarTuning</RootNamespace>
     <Version>1.0.0</Version>
     <Authors>LxgacyTeam</Authors>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <OutputPath>bin\$(Configuration)\$(ResourcesPlatform)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <NoWarn>$(NoWarn);0618</NoWarn>

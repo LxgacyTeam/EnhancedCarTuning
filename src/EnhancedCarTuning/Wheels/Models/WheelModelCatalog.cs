@@ -32,18 +32,21 @@ namespace EnhancedCarTuning.Wheels.Models
             get
             {
                 var array = ControlArray.byType(ControlArray.Type.Car);
-                return WheelModelDefinitions.All.Where(o => o.IsRim || array && array.controls.Any(i => o.Donors.Contains(i.name))).ToArray();
+                var native = WheelModelDefinitions.All.Where(o => o.Donors.Length == 0 || array && array.controls.Any(i => o.Donors.Contains(i.name)));
+                var custom = EmbeddedAssets.RimModels.Select(m => new WheelModelOption { Id = m.Id, LeftName = m.LeftAsset, RightName = m.RightAsset, Donors = new string[0] });
+                return native.Concat(custom).ToArray();
             }
         }
         internal static bool IsKnown(string id)
         {
             if (id == "stock") return true;
+            if (id != null && id.StartsWith("rim_", StringComparison.Ordinal)) return NetManager.isServer ? EnhancedCarTuning.Wheels.Rims.RimModelIds.Contains(id) : EmbeddedAssets.TryGetRim(id, out _);
             if (!WheelModelXml.ValidId(id)) return false;
             var definition = Array.Find(WheelModelDefinitions.All, o => o.Id == id);
             if (definition != null && definition.IsRim) return true;
             var array = ControlArray.byType(ControlArray.Type.Car);
             if (!array) return false;
-            return definition != null ? array.controls.Any(i => definition.Donors.Contains(i.name)) : array.controls.Any(i => i.name == id);
+            return definition != null ? definition.Donors.Length == 0 || array.controls.Any(i => definition.Donors.Contains(i.name)) : array.controls.Any(i => i.name == id);
         }
         internal static bool TryGet(string id, out WheelModelOption option)
         {
@@ -56,7 +59,7 @@ namespace EnhancedCarTuning.Wheels.Models
             if (!array) return false;
             foreach (var item in array.controls)
             {
-                if (definition != null ? !definition.Donors.Contains(item.name) : item.name != id) continue;
+                if (definition != null ? definition.Donors.Length > 0 && !definition.Donors.Contains(item.name) : item.name != id) continue;
                 if (!(item.control is CarControl car)) continue;
                 if (!CapturePair(car, definition, out var left, out var right)) continue;
                 option = definition ?? new WheelModelOption { Id = id };
@@ -99,6 +102,7 @@ namespace EnhancedCarTuning.Wheels.Models
         internal static string Label(string id)
         {
             if (id == "stock") return "Штатные";
+            if (id != null && id.StartsWith("rim_", StringComparison.Ordinal) && EmbeddedAssets.TryGetRim(id, out var imported)) return imported.Name;
             var definition = Array.Find(WheelModelDefinitions.All, o => o.Id == id);
             if (definition != null) return definition.IsRim ? definition.RightName.Substring(0, definition.RightName.Length - 2) : definition.RightName;
             var front = Array.Find(WheelModelDefinitions.All, o => !o.RearVariant && o.Donors.Contains(id));

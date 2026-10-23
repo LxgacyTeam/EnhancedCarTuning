@@ -15,6 +15,10 @@ namespace EnhancedCarTuning.Appearance.UI
         { internal int Mask; internal MenuButtonGroup Button; internal Image Swatch, Marker; }
         private readonly CarGarageUI garage;
         private readonly GlassGaragePrototype session;
+        private readonly bool lamps;
+        private readonly RectTransform preceding;
+        private readonly GlassGroup[] groups;
+        private string Prefix => lamps ? "ECT.Lamp" : "ECT.Glass";
         private readonly List<Row> rows = new List<Row>();
         private readonly List<MenuButtonGroup> buttons = new List<MenuButtonGroup>();
         private readonly List<Image> samples = new List<Image>();
@@ -29,16 +33,18 @@ namespace EnhancedCarTuning.Appearance.UI
         private float lastGloss, lastMetallic, nextScan;
         private bool syncing, multiple;
         private int selected;
+        internal bool HasParts => Available != 0;
         internal RectTransform Entry => entry ? (RectTransform)entry.transform : null;
         internal bool IsOpen => picker && picker.gameObject.activeInHierarchy && (!picker.top_panel || picker.top_panel.cur == picker);
         private static bool PurchaseOpen => MenuBuy.me && MenuBuy.me.gameObject.activeInHierarchy &&
             (!MenuBuy.me.root || MenuBuy.me.root.activeInHierarchy);
         private int Available
         {
-            get { int mask = 0; for (int i = 0; i < 3; i++) if (session.State.GroupCount((GlassGroup)i) > 0) mask |= 1 << i; return mask; }
+            get { int mask = 0; foreach (var group in groups) if (session.State.GroupCount(group) > 0) mask |= 1 << (int)group; return mask; }
         }
-        internal GlassPaintGarageView(CarGarageUI garage, GlassGaragePrototype session)
-        { this.garage = garage; this.session = session; }
+        internal GlassPaintGarageView(CarGarageUI garage, GlassGaragePrototype session, bool lamps = false, RectTransform preceding = null)
+        { this.garage = garage; this.session = session; this.lamps = lamps; this.preceding = preceding;
+          groups = lamps ? new[] { GlassGroup.LampsFront, GlassGroup.LampsBack } : new[] { GlassGroup.Front, GlassGroup.Back, GlassGroup.Middle, GlassGroup.Sunroof }; }
         internal void Build()
         {
             colors = garage.root.Find("ECT.Colors_menu") as RectTransform;
@@ -48,54 +54,54 @@ namespace EnhancedCarTuning.Appearance.UI
             overlayParent = garage.transform as RectTransform;
             if (!overlayParent) throw new InvalidOperationException("Garage overlay parent unavailable.");
             selected = First(Available);
-            root = NativeMenuFactory.Rect("ECT.GlassPaintControls", overlayParent, 1920, 1080);
+            root = NativeMenuFactory.Rect(Prefix + "PaintControls", overlayParent, 1920, 1080);
             root.gameObject.SetActive(false);
             focus = root.gameObject.AddComponent<MenuFocusManager>();
             if (template.focusManger) focus.saveSettingsTo = template.focusManger.saveSettingsTo;
             buttonGroup = root.gameObject.AddComponent<MenuGroup>(); buttonGroup.alighContent = MenuGroup.AlignType.None;
             buttonGroup.disable_manualy = new MenuGroup[0];
-            panel = Box("ECT.GlassGroups", root, 1508, 114, 412, 966);
+            panel = Box(Prefix + "Groups", root, 1508, 114, 412, 966);
             NativePanelBackground.Attach(panel, garage);
             using (var factory = new NativeMenuFactory(garage, template))
             {
-                entry = factory.Button("ECT.GlassPaint", colors, "СТЕКЛА", "", action: OpenPicker);
+                entry = factory.Button(Prefix + "Paint", colors, lamps ? "ФАРЫ" : "СТЕКЛА", "", action: OpenPicker);
                 entry.isStaickPos = true;
                 PrepareText(entry, 36);
                 Fit(entry.text.ui.rectTransform, .13f, .60f, .92f, .95f);
-                sampleRoot = NativeMenuFactory.Rect("ECT.GlassSamples", entry.transform, 0, 0);
+                sampleRoot = NativeMenuFactory.Rect(Prefix + "Samples", entry.transform, 0, 0);
                 Fit(sampleRoot, .13f, .13f, .90f, .49f);
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < groups.Length; i++)
                 {
-                    var image = NativeMenuFactory.Rect("ECT.GlassSample." + (GlassGroup)i, sampleRoot, 48, 48).gameObject.AddComponent<Image>();
+                    var image = NativeMenuFactory.Rect(Prefix + "Sample." + groups[i], sampleRoot, 48, 48).gameObject.AddComponent<Image>();
                     image.raycastTarget = false; samples.Add(image);
                 }
                 many = Button(factory, "Many", "ВЫБРАТЬ НЕСКОЛЬКО", 16, 70, () =>
                 { FlushPicker(); multiple = !multiple; if (!multiple) selected = First(selected); SyncPicker(); });
                 Fit(many.text.ui.rectTransform, .235f, .1f, .94f, .9f);
-                manyCheck = Box("ECT.GlassSelectManyCheck", many.transform, 40, 16, 38, 38).gameObject.AddComponent<Text>();
+                manyCheck = Box(Prefix + "SelectManyCheck", many.transform, 40, 16, 38, 38).gameObject.AddComponent<Text>();
                 manyCheck.font = UnityEngine.Resources.GetBuiltinResource<Font>("Arial.ttf"); manyCheck.fontSize = 32;
                 manyCheck.color = Color.white; manyCheck.alignment = TextAnchor.MiddleCenter; manyCheck.raycastTarget = false;
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < groups.Length; i++)
                 {
-                    int mask = 1 << i;
-                    var button = Button(factory, "Group." + (GlassGroup)i, Label((GlassGroup)i), 106 + i * 108, 100, () => Select(mask));
+                    int mask = 1 << (int)groups[i];
+                    var button = Button(factory, "Group." + groups[i], Label(groups[i]), 106 + i * 108, 100, () => Select(mask));
                     Fit(button.text.ui.rectTransform, .13f, .10f, .73f, .90f);
-                    var swatch = Box("ECT.GlassGroupColor", button.transform, 292, 22, 56, 56).gameObject.AddComponent<Image>();
+                    var swatch = Box(Prefix + "GroupColor", button.transform, 292, 22, 56, 56).gameObject.AddComponent<Image>();
                     swatch.raycastTarget = false;
-                    var marker = Box("ECT.GlassGroupSelected", button.transform, 26, 8, 6, 84).gameObject.AddComponent<Image>();
+                    var marker = Box(Prefix + "GroupSelected", button.transform, 26, 8, 6, 84).gameObject.AddComponent<Image>();
                     marker.color = new Color(.05f,.90f,.13f,1); marker.raycastTarget = false;
                     rows.Add(new Row { Mask = mask, Button = button, Swatch = swatch, Marker = marker });
                 }
-                Button(factory, "Reset", "СБРОСИТЬ ВЫБРАННОЕ", 450, 80, () =>
+                Button(factory, "Reset", "СБРОСИТЬ ВЫБРАННОЕ", Mathf.Max(450,126+groups.Length*108), 80, () =>
                 { FlushPicker(); session.ResetGroups(selected); SyncPicker(); RefreshSamples(); });
             }
             Layout(); RefreshSamples();
             entry.gameObject.SetActive(true);
         }
-        private static string Label(GlassGroup group) => group == GlassGroup.Front ? "ПЕРЕД" : group == GlassGroup.Back ? "ЗАД" : "СЕРЕДИНА";
+        private static string Label(GlassGroup group) => group == GlassGroup.LampsFront ? "ПЕРЕДНИЕ" : group == GlassGroup.LampsBack ? "ЗАДНИЕ" : group == GlassGroup.Front ? "ПЕРЕД" : group == GlassGroup.Back ? "ЗАД" : group==GlassGroup.Sunroof?"ЛЮК":"СЕРЕДИНА";
         private MenuButtonGroup Button(NativeMenuFactory factory, string name, string label, float y, float height, Action action)
         {
-            var button = factory.Button("ECT.GlassPaint." + name, panel, label, "", action: () => { if (!PurchaseOpen) action(); });
+            var button = factory.Button(Prefix + "Paint." + name, panel, label, "", action: () => { if (!PurchaseOpen) action(); });
             button._focusManger = focus; button.manualGroup = buttonGroup;
             if (!buttonGroup.buttons.Contains(button)) buttonGroup.buttons.Add(button);
             button.isStaickPos = true; Place((RectTransform)button.transform, 12, y, 388, height);
@@ -115,13 +121,14 @@ namespace EnhancedCarTuning.Appearance.UI
         {
             if (PurchaseOpen || !session.CanEdit || Available == 0 || !colors.gameObject.activeInHierarchy) return;
             if (IsOpen) return;
+            garage.GetComponent<GarageTuningPanel>()?.CloseGlassEditors(this);
             ClosePicker(); session.State.Scan(); selected = First(Available);
             garage.GetComponent<GarageTuningPanel>()?.FlushBodyPaint();
             if (garage.bodyColor.Created)
             { garage.bodyColor.Created.gameObject.SetActive(false); }
             garage.bodyColor.picker.gameObject.SetActive(false);
             picker = Object.Instantiate(garage.bodyColor.picker, GameUI.me.rectUI);
-            picker.name = "ECT.GlassColorPicker"; picker.set_text = ECTLocalization.T("ПОКРАСКА СТЕКОЛ");
+            picker.name = Prefix + "ColorPicker"; picker.set_text = ECTLocalization.T(lamps ? "ПОКРАСКА ФАР" : "ПОКРАСКА СТЕКОЛ");
             picker.gameObject.SetActive(true);
             picker.SetMettalicEdit(true);
             var glossRect = (RectTransform)picker.gloss.transform;
@@ -131,17 +138,17 @@ namespace EnhancedCarTuning.Appearance.UI
             if (step < 20) step = 86;
             glossRect.anchoredPosition -= new Vector2(0, step);
             ((RectTransform)picker.mettalic.transform).anchoredPosition -= new Vector2(0, step);
-            picker.panel.rectTransform.sizeDelta += new Vector2(0, step);
             picker.opacity.gameObject.SetActive(true);
+            ColorPickerHex.Attach(picker).SetExtraHeight(step);
             if (picker.opacity.text)
-            { picker.opacity.text.enabled = false; picker.opacity.text.isInit = true; picker.opacity.text.ui.text = ECTLocalization.T("ТОНИРОВКА"); }
+            { picker.opacity.text.enabled = false; picker.opacity.text.isInit = true; picker.opacity.text.ui.text = ECTLocalization.T("ПРОЗРАЧНОСТЬ"); }
             SyncPicker(); picker.eventUp = FlushPicker;
             root.gameObject.SetActive(true); Layout(); RefreshRows();
         }
-        private static int First(int mask)
-        { for (int i = 0; i < 3; i++) if ((mask & (1 << i)) != 0) return 1 << i; return 0; }
+        private int First(int mask)
+        { for (int i = 0; i < groups.Length; i++) if ((mask & (1 << (int)groups[i])) != 0) return 1 << (int)groups[i]; return 0; }
         private GlassGroupPaint SelectionPaint()
-        { for (int i = 0; i < 3; i++) if ((selected & (1 << i)) != 0) return session.State.Effective((GlassGroup)i); return session.State.Effective(GlassGroup.Front); }
+        { for (int i = 0; i < groups.Length; i++) if ((selected & (1 << (int)groups[i])) != 0) return session.State.Effective(groups[i]); return session.State.Effective(groups[0]); }
         private void Select(int mask)
         {
             FlushPicker();
@@ -175,9 +182,9 @@ namespace EnhancedCarTuning.Appearance.UI
             if (side <= 0) return;
             for (int i = 0; i < samples.Count; i++)
             {
-                bool show = (available & (1 << i)) != 0; var sample = samples[i]; sample.gameObject.SetActive(show);
+                bool show = (available & (1 << (int)groups[i])) != 0; var sample = samples[i]; sample.gameObject.SetActive(show);
                 if (!show) continue;
-                sample.color = Swatch(session.State.Effective((GlassGroup)i));
+                sample.color = Swatch(session.State.Effective(groups[i]));
                 Place(sample.rectTransform,visible++*(side+8),0,side,side);
             }
         }
@@ -193,7 +200,7 @@ namespace EnhancedCarTuning.Appearance.UI
                 bool show = (available & row.Mask) != 0; row.Button.gameObject.SetActive(show); if (!show) continue;
                 Place((RectTransform)row.Button.transform,12,106+visible++*108,388,100);
                 row.Button.nowButtonDissabe = !session.CanEdit; row.Marker.gameObject.SetActive((selected & row.Mask) != 0);
-                for (int i=0; i<3; i++) if (row.Mask == (1 << i)) row.Swatch.color = Swatch(session.State.Effective((GlassGroup)i));
+                for (int i=0; i<groups.Length; i++) if (row.Mask == (1 << (int)groups[i])) row.Swatch.color = Swatch(session.State.Effective(groups[i]));
             }
             foreach (var button in buttons) button.nowButtonDissabe = !session.CanEdit;
         }
@@ -202,6 +209,7 @@ namespace EnhancedCarTuning.Appearance.UI
             if (!root || !garage || !session.State) return;
             if (Time.unscaledTime >= nextScan) { nextScan = Time.unscaledTime+1; session.State.Scan(); }
             Layout(); RefreshSamples();
+            entry.gameObject.SetActive(Available != 0);
             entry.nowButtonDissabe = !session.CanEdit || Available == 0;
             if (!picker) { root.gameObject.SetActive(false); return; }
             FlushPicker();
@@ -216,7 +224,7 @@ namespace EnhancedCarTuning.Appearance.UI
         {
             if (root && GameUI.me) CanvasAspectLayout.Apply(root,overlayParent,GameUI.me.rectUI,corners);
             if (!entry || !garage.bodyColor) return;
-            var body = (RectTransform)garage.bodyColor.transform;
+            var body = preceding && preceding.gameObject.activeSelf ? preceding : (RectTransform)garage.bodyColor.transform;
             var rect = (RectTransform)entry.transform; NativeMenuFactory.CopyRect(body,rect);
             rect.sizeDelta = new Vector2(rect.sizeDelta.x,176);
             rect.anchoredPosition = body.anchoredPosition-new Vector2(0,body.rect.height+12);

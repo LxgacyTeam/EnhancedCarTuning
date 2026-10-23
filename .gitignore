@@ -430,3 +430,12 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# ECT reproducible Unity resources
+GlassShaderProject/Library/
+GlassShaderProject/Temp/
+GlassShaderProject/Logs/
+GlassShaderProject/Assets/Generated/
+GlassShaderProject/Assets/Editor/QA/
+build-logs/
+!GlassShaderProject/SourceModels/**/*.obj

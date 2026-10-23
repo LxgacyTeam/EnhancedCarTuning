@@ -50,7 +50,6 @@ namespace EnhancedCarTuning.Wheels.Suspension
                 if (!snapshot.Wheel || target == AxleTarget.Front && snapshot.Rear || target == AxleTarget.Rear && !snapshot.Rear) continue;
                 var axle = settings.For(snapshot.Rear);
                 bool rimSize = p == WheelParameter.RimDiameter || p == WheelParameter.RimWidth;
-                if (rimSize && !axle.ModelId.StartsWith("rim_", StringComparison.Ordinal)) continue;
                 float v = axle.Get(p) ?? (p == WheelParameter.RimDiameter ? 2 * (axle.Get(WheelParameter.Radius) ?? snapshot.Radius) * .72f :
                     p == WheelParameter.RimWidth ? axle.Get(WheelParameter.Width) ?? snapshot.Width : snapshot.Value(p));
                 if (rimSize)
@@ -66,7 +65,7 @@ namespace EnhancedCarTuning.Wheels.Suspension
         }
         internal void Range(AxleTarget target, WheelParameter p, out float min, out float max)
         {
-            min = WheelLimits.Min(p); max = WheelLimits.Max(p);
+            min = WheelLimits.Min(p); max = p == WheelParameter.Radius ? WheelVehicleLimits.ForCar(car) : WheelLimits.Max(p);
             if (p != WheelParameter.RimDiameter) return;
             var models = car.GetComponent<EnhancedCarTuning.Core.VehicleTuningState>()?.WheelModels;
             if (models == null) return;
@@ -75,16 +74,19 @@ namespace EnhancedCarTuning.Wheels.Suspension
                 if (!snapshot.Wheel || target == AxleTarget.Front && snapshot.Rear || target == AxleTarget.Rear && !snapshot.Rear) continue;
                 if (models.ReadRimSize(snapshot.Wheel, p, out _, out var limit)) max = Mathf.Min(max, Mathf.Floor(limit));
             }
+            min = Mathf.Max(min,max/.94f*.3f);
             min = Mathf.Min(min, max);
         }
 
         internal void Apply(WheelSettings settings)
         {
+            bool physicsChanged = false;
             foreach (var s in snapshots)
             {
                 var w = s.Wheel; if (!w) continue;
                 var a = settings.For(s.Rear);
-                if (a.Equals(applied.For(s.Rear))) continue;
+                if (a.PhysicalEquals(applied.For(s.Rear))) continue;
+                physicsChanged = true;
                 if (a.Get(WheelParameter.Travel).HasValue || a.Get(WheelParameter.Stiffness).HasValue)
                 {
                     // A native ParamWheel can be shared by all wheels or even referenced as an asset.
@@ -116,7 +118,7 @@ namespace EnhancedCarTuning.Wheels.Suspension
                 w.contactInfo.Reset(); w.isNeedApplyImpulce = false;
                 w.ResetCacheData(); w.WasMovedResetForces();
             }
-            if (!settings.Equals(applied) && car && car.body) car.body.WakeUp();
+            if (physicsChanged && car && car.body) car.body.WakeUp();
             applied = settings;
             // Time.timeScale can be zero in the main menu: waking the rigidbody cannot settle it.
             // UpPos starts with the native absolute pose, so repeated previews never accumulate a shift.

@@ -57,7 +57,7 @@ namespace EnhancedCarTuning.Wheels.UI
             session.State.WheelService.Range(axle(), parameter, out minimum, out maximum);
             editable = found && session.CanEdit && CanReceiveInput();
             panel.text.ui.text = ECTLocalization.T(title);
-            float shown = parameter == WheelParameter.Radius ? current * 2 : current;
+            float shown = parameter == WheelParameter.RimDiameter ? current * .5f : current;
             panel.value.text = !found ? "—" : mixed ? ECTLocalization.T("Разные") : shown.ToString("0.#", CultureInfo.InvariantCulture) + ECTLocalization.T(unit);
             float t = Mathf.InverseLerp(minimum, maximum, current);
             var thumb = panel.hPoint.rectTransform;

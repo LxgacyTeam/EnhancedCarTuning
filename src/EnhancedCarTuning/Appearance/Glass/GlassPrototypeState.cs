@@ -30,11 +30,11 @@ namespace EnhancedCarTuning.Appearance.Glass
         internal GlassFinish ActiveFinish, CommittedFinish;
         internal Dictionary<GlassGroup, GlassGroupPaint> ActiveGroups = new Dictionary<GlassGroup, GlassGroupPaint>();
         internal Dictionary<GlassGroup, GlassGroupPaint> CommittedGroups = new Dictionary<GlassGroup, GlassGroupPaint>();
-        internal GlassGroupPaint Effective(GlassGroup group) => ActiveGroups.TryGetValue(group, out var paint) ? paint : new GlassGroupPaint(Active, ActiveFinish);
+        internal GlassGroupPaint Effective(GlassGroup group) => ActiveGroups.TryGetValue(group, out var paint) ? paint : GlassGroupPaint.IsLamp(group) ? new GlassGroupPaint(new Color(0,0,0,0), null) : new GlassGroupPaint(Active, ActiveFinish);
         internal int GroupCount(GlassGroup group) { int count = 0; foreach (var surface in surfaces) if (surface.Group == group) count++; return count; }
         private bool HasTint { get { if (Active.a > .001f) return true; foreach (var setting in ActiveGroups.Values) if (setting.Tint.a > .001f) return true; return false; } }
         internal bool SerializePreview;
-        internal int WindowCount => surfaces.Count;
+        internal int WindowCount { get { int count = 0; foreach (var surface in surfaces) if (!GlassGroupPaint.IsLamp(surface.Group)) count++; return count; } }
         internal int GlassCount { get { int count = 0; if (Paint) foreach (var item in Paint.items) if (IsGlass(item)) count++; return count; } }
         internal static bool IsGlass(CarPaintItems.Item item) => item != null && targets.TryGetValue(item, out var target) && target.Glass;
         internal static void SetGlass(CarPaintItems.Item item, bool glass)
@@ -53,7 +53,10 @@ namespace EnhancedCarTuning.Appearance.Glass
             if (!Paint || !Paint.car || !Paint.car.tr_view) { foreach (var old in previous) Restore(old, true); return; }
             foreach (var window in Paint.car.tr_view.GetComponentsInChildren<CarWindow>(true))
             {
-                if (!GlassWindowClassifier.IsCabinWindow(window, Paint.car.tr_view)) continue;
+                var loader = window.GetComponent<MeshLoadFromResources>();
+                GlassGroup lampGroup;
+                bool lamp = GlassWindowClassifier.TryLampGroup(window.name, out lampGroup) || loader && GlassWindowClassifier.TryLampGroup(loader.mesh_name, out lampGroup);
+                if (!lamp && !GlassWindowClassifier.IsCabinWindow(window, Paint.car.tr_view)) continue;
                 var filter = window.GetComponent<MeshFilter>(); var renderer = window.GetComponent<MeshRenderer>();
                 if (!filter || !filter.sharedMesh || !renderer) continue;
                 renderer.GetSharedMaterials(shared);
@@ -62,11 +65,12 @@ namespace EnhancedCarTuning.Appearance.Glass
                     Surface binding = null;
                     foreach (var old in previous) if (old.Renderer == renderer && old.Slot == slot) { binding = old; break; }
                     var material = binding != null && shared[slot] == binding.FinishMaterial ? binding.Original : shared[slot];
-                    if (!material || !material.shader || !material.shader.name.StartsWith("Custom/Car/CarWindow", StringComparison.Ordinal)) continue;
+                    if (!material || !material.shader || !(material.shader.name.StartsWith("Custom/Car/CarWindow", StringComparison.Ordinal) ||
+                        lamp && material.shader.name.StartsWith("Custom/Car/Car_Light_Glass", StringComparison.Ordinal))) continue;
                     if (binding != null && binding.Original == material)
-                    { binding.Group = GlassWindowClassifier.Classify(window, renderer, Paint.car.tr_view); previous.Remove(binding); surfaces.Add(binding); }
+                    { binding.Group = lamp ? lampGroup : GlassWindowClassifier.Classify(window, renderer, Paint.car.tr_view); previous.Remove(binding); surfaces.Add(binding); }
                     else surfaces.Add(new Surface { Window = window, Filter = filter, Renderer = renderer, Slot = slot, Original = material,
-                        Group = GlassWindowClassifier.Classify(window, renderer, Paint.car.tr_view) });
+                        Group = lamp ? lampGroup : GlassWindowClassifier.Classify(window, renderer, Paint.car.tr_view) });
                 }
                 shared.Clear();
             }
@@ -119,7 +123,7 @@ namespace EnhancedCarTuning.Appearance.Glass
                     drawn++;
                     while (index >= materials.Count) materials.Add(new Material(shader) { name = "ECT.Glass.Vinyl", renderQueue = 3101 + materials.Count });
                     var material = materials[index++];
-                    material.SetFloat("_Projected", 1); material.SetTexture("_MainTex", texture); material.SetColor("_Color", item.color);
+                    material.SetFloat("_Projected", 1); material.SetTexture("_MainTex", texture); material.SetColor("_Color", VinylColor(item.color));
                     material.SetFloat("_Invert", item.spriteInfo.invert ? 1 : 0);
                     Project(material, item.pos, item.getQuat, item.size_y, item.acpect, item.depth, false);
                     if (!item.isSymetry) continue;
@@ -136,6 +140,7 @@ namespace EnhancedCarTuning.Appearance.Glass
         }
         internal static float TintOpacity(float density)
         { float clear = 1 - Mathf.Clamp01(density); return 1 - clear * clear * clear; }
+        internal static Color VinylColor(Color color) => new Color(color.r,color.g,color.b,color.a * .5f);
         private void SyncFinish()
         {
             bool hasFinish = ActiveFinish != null;
@@ -182,7 +187,7 @@ namespace EnhancedCarTuning.Appearance.Glass
             {
                 if (!surface.Window || !surface.Renderer || !surface.Filter || !surface.Filter.sharedMesh ||
                     !surface.Renderer.enabled || !surface.Renderer.gameObject.activeInHierarchy || surface.Slot >= surface.Filter.sharedMesh.subMeshCount) continue;
-                if (surface.Window.state == CarWindow.State.Destroed) continue;
+                if (surface.Window.state == CarWindow.State.Destroed || !nativeOnly && GlassGroupPaint.IsLamp(surface.Group)) continue;
                 if ((drawingCamera.cullingMask & (1 << surface.Renderer.gameObject.layer)) == 0) continue;
                 var bound = surface.Renderer.sharedMaterials;
                 if (surface.Slot >= bound.Length) continue;
@@ -206,10 +211,12 @@ namespace EnhancedCarTuning.Appearance.Glass
             var view = Paint.car.tr_view;
             foreach (var surface in surfaces)
             {
+                if (GlassGroupPaint.IsLamp(surface.Group)) continue;
                 var point = view.InverseTransformPoint(surface.Renderer.bounds.center);
                 float value = side == 0 ? point.z : side == 1 ? -point.z : side == 2 ? -point.x : point.x;
                 if (value > score) { score = value; best = surface; }
             }
+            if (best == null) return;
             var center = view.InverseTransformPoint(best.Renderer.bounds.center);
             var outward = side == 0 ? new Vector3(0, .4f, 1).normalized : side == 1 ? new Vector3(0, .4f, -1).normalized :
                 side == 2 ? new Vector3(-1, .15f, 0).normalized : new Vector3(1, .15f, 0).normalized;

@@ -20,7 +20,7 @@ namespace EnhancedCarTuning.Patches
             var police = PolicePaintState.Ensure(__instance);
             if (isSave) PolicePaintXml.Write(_el, police.SerializePreview ? police.Active : police.Committed,
                 police.SerializePreview ? police.SirenMode : police.CommittedSirenMode);
-            else
+            else if (!VinylPortBridge.IsApplyingPaint(__instance.car ? __instance.car : __instance.GetComponent<CarControl>()))
             {
                 if (!PolicePaintXml.TryRead(_el, out bool enabled, out int mode)) Plugin.Warn("Invalid police paint XML; using ordinary paint.");
                 police.Commit(enabled, mode);

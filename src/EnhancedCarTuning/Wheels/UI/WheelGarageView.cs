@@ -6,7 +6,6 @@ using EnhancedCarTuning.UI;
 using EnhancedCarTuning.Localization;
 using EnhancedCarTuning.Wheels.Suspension;
 using EnhancedCarTuning.Wheels.Models;
-using EnhancedCarTuning.Wheels.Tires;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -25,10 +24,11 @@ namespace EnhancedCarTuning.Wheels.UI
         private int colorIndex;
         private bool colorStatic;
         private bool colorPreserveAspect;
-        private MenuButtonGroup axleButton, modelButton, tireButton, reset;
+        private MenuButtonGroup axleButton, modelButton, reset;
         private AxleTarget selected = AxleTarget.Both;
         private Font font;
-        private Text modelName, tireName;
+        private Text modelName;
+        internal AxleTarget SelectedAxle => selected;
         private readonly List<WheelSwitchArrow> arrows = new List<WheelSwitchArrow>();
         private readonly Vector3[] corners = new Vector3[4];
         private Sprite[] axleIcons;
@@ -82,14 +82,14 @@ namespace EnhancedCarTuning.Wheels.UI
                 }
                 popup.gameObject.SetActive(false);
                 modelButton = Selector(factory, "WheelModel", "КОЛЁСА", WheelPanelLayout.RimTop, CycleModel, out modelName);
-                tireButton = Selector(factory, "TireModel", "ШИНЫ", WheelPanelLayout.TireTop, CycleTire, out tireName);
                 reset = Button(factory, "ResetAxle", root, "СБРОС ОСИ", "", 1642, 972, 268, 92,
                     () => { session.ResetWheels(selected); Refresh(); });
                 // Reset is text-only; the axle controls use a large car silhouette above the label.
                 Fit(reset.text.ui.rectTransform, 0.06f, 0.08f, 0.94f, 0.92f);
             }
 
-            AddSlider(source, WheelParameter.Radius, "ДИАМЕТР", " см", WheelPanelLayout.Left, WheelPanelLayout.DiameterTop, WheelPanelLayout.Width, WheelPanelLayout.SliderHeight);
+            AddSlider(source, WheelParameter.Radius, "РАДИУС КОЛЕСА", " см", WheelPanelLayout.Left, WheelPanelLayout.DiameterTop, WheelPanelLayout.Width, WheelPanelLayout.SliderHeight);
+            AddSlider(source, WheelParameter.RimDiameter, "РАДИУС ДИСКА", " см", WheelPanelLayout.Left, WheelPanelLayout.TireTop, WheelPanelLayout.Width, WheelPanelLayout.SliderHeight);
             AddSlider(source, WheelParameter.Width, "ШИРИНА", " см", WheelPanelLayout.Left, WheelPanelLayout.WidthTop, WheelPanelLayout.Width, WheelPanelLayout.SliderHeight);
             AddSlider(source, WheelParameter.OffsetX, "СМЕЩЕНИЕ X", " см", 1642, 190, 268, 98);
             AddSlider(source, WheelParameter.OffsetY, "СМЕЩЕНИЕ Y", " см", 1642, 293, 268, 96);
@@ -124,15 +124,6 @@ namespace EnhancedCarTuning.Wheels.UI
             float x = ((RectTransform)modelButton.transform).MouseToLocal(modelButton.pressPos).x;
             session.SelectWheelModel(selected, WheelModelCatalog.Step(current, WheelModelCycle.Direction(x)));
             Refresh();
-        }
-        private void CycleTire()
-        {
-            if (!session.CanEdit) return;
-            popup.gameObject.SetActive(false);
-            var wheels = session.Selection.Draft.Wheels;
-            string current = selected == AxleTarget.Rear ? wheels.Rear.TireId : wheels.Front.TireId;
-            float x = ((RectTransform)tireButton.transform).MouseToLocal(tireButton.pressPos).x;
-            session.SelectTire(selected, TireCatalog.Step(current, WheelModelCycle.Direction(x))); Refresh();
         }
         private MenuButtonGroup Selector(NativeMenuFactory factory, string name, string label, float y, Action action, out Text value)
         {
@@ -191,10 +182,6 @@ namespace EnhancedCarTuning.Wheels.UI
             modelName.text = ECTLocalization.T(label);
             modelName.color = modelButton.text.ui.color;
             modelButton.nowButtonDissabe = !session.CanEdit;
-            string tire = selected == AxleTarget.Rear ? wheels.Rear.TireId : wheels.Front.TireId;
-            tireName.text = ECTLocalization.T(selected == AxleTarget.Both && wheels.Front.TireId != wheels.Rear.TireId ? "РАЗНЫЕ" : TireCatalog.Label(tire));
-            NativeMenuFactory.SetLabel(tireButton.text.ui, ECTLocalization.T("ШИНЫ") + ":");
-            tireName.color = tireButton.text.ui.color; tireButton.nowButtonDissabe = !session.CanEdit;
             foreach (var arrow in arrows) if (arrow) arrow.color = session.CanEdit ? new Color(.88f, .9f, .91f, 1) : new Color(.45f, .48f, .49f, 1);
             reset.nowButtonDissabe = !session.CanEdit;
             foreach (var slider in sliders) if (slider) slider.Refresh();

@@ -16,6 +16,7 @@ namespace EnhancedCarTuning.Patches
     {
         private static bool Prefix(MenuFocusManager __instance)
         {
+            if(ColorPickerHex.AnyTyping)return false;
             var garage = __instance.GetComponentInParent<CarGarageUI>();
             var panel = garage ? garage.GetComponent<GarageTuningPanel>() : null;
             return !panel || !panel.IsTypingVinyl;

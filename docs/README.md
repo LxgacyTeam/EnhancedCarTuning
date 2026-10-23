@@ -14,10 +14,16 @@
 
 * Engine and drivetrain selection (RWD, FWD, AWD)
 * Individual body part painting (bumpers, hood, trunk, doors)
+* Removable body parts
 * Flexible suspension settings: height, wheel offset, travel, stiffness, and camber
 * Adjustable wheel radius and width
+* 41 rim models with separate outer and inner finishes
+* Tire profile adjustment for stock wheels and new rims
+* Window and front/rear light tint
+* Decals on windows
 * Separate settings for the front and rear axles
 * Text decals with font selection
+* Color picker HEX display, copying and entry
 * Decal symmetry
 * Improved primitive textures
 * Increased vinyl canvas resolution (configurable)
@@ -56,6 +62,12 @@ git clone https://github.com/LxgacyTeam/EnhancedCarTuning.git
 cd EnhancedCarTuning
 dotnet build -c Release -p:GameDir="path\to\game\dir" -p:CopyToPlugins=true
 ```
+
+Use `-p:ResourcesPlatform=Windows` or `-p:ResourcesPlatform=Linux`; the build host's OS supplies the default. Output is in `src/EnhancedCarTuning/bin/Release/Windows` or `Linux`, containing the plugin and `EnhancedCarTuning.Resources.dll`. Install the resource variant matching the game's platform.
+
+Resource bundles are built separately for each platform. Rebuilding them requires Unity **2019.1.8f1** with Windows and Linux Standalone support. Run `Build-Resources.ps1` from the repository root; pass the editor path with `-Unity` when needed. See the [asset build guide](../GlassShaderProject/README.md).
+
+The garage displays radii in centimetres. Maximum wheel diameter is 100 cm for Q7, Tahoe, Jeep_Wran, H2, Picap, Zil_130, TruckMedium, Avalanche and Kamaz_5320, and 200 cm for Traktor. Stock wheel models retain their own tires; there is no tire selector. Canvas resolution applies to every decal type. New text layers start at scale `0.2`. Decal opacity remains `0–1` in the UI, with a `0.5` rendering multiplier on windows.
 
 > [!NOTE]
 > When opening the project in Visual Studio, you **must** set the path to the game's root directory in the `<GameDir>` property in `Directory.Build.props`. All required Unity and BepInEx assemblies will then be referenced automatically.

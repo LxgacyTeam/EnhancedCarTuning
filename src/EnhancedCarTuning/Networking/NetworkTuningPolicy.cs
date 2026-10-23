@@ -24,8 +24,6 @@ namespace EnhancedCarTuning.Networking
             { Plugin.Warn("Rejected unknown engine: " + settings.EngineId); return false; }
             if (!WheelModelCatalog.IsKnown(settings.Wheels.Front.ModelId) || !WheelModelCatalog.IsKnown(settings.Wheels.Rear.ModelId))
             { Plugin.Warn("Rejected unknown wheel model."); return false; }
-            if (!EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(settings.Wheels.Front.TireId) || !EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(settings.Wheels.Rear.TireId))
-            { Plugin.Warn("Rejected unknown tire model."); return false; }
             return true;
         }
 
@@ -35,7 +33,8 @@ namespace EnhancedCarTuning.Networking
             if (EnhancedCarTuning.Configuration.TuningConfig.AllowDuringEvents || !net.netInputControl || !net.netInputControl.curEvent) return true;
             // Let the game's event rules handle paint changes; prohibit only a tuning change here.
             TuningXmlCodec.TryRead(net.xmlData, out TuningSettings previous, out _);
-            return next.Equals(previous);
+            return next.Equals(previous)&&Appearance.Parts.BodyPartsXml.TryRead(net.xmlData,out var oldParts)&&
+                Appearance.Parts.BodyPartsXml.TryRead(xml,out var newParts)&&oldParts.Equals(newParts);
         }
     }
 }

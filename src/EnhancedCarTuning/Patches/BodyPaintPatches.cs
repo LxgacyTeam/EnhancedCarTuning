@@ -68,7 +68,10 @@ namespace EnhancedCarTuning.Patches
         private static PaintFinish Current(MenuColor picker)
         {
             var garage = CarGarageUI.me;
-            if (!garage || picker != garage.bodyColor) return null;
+            if (!garage) return null;
+            var panel = garage.GetComponent<GarageTuningPanel>();
+            if (picker == garage.wheelColor) return panel?.RimNativeFinish;
+            if (picker != garage.bodyColor) return null;
             return garage.GetComponent<GarageTuningPanel>()?.BodyPaintSession?.Base;
         }
         internal static Color Color(MenuColor picker) => Current(picker)?.Color ?? picker.GetColor();

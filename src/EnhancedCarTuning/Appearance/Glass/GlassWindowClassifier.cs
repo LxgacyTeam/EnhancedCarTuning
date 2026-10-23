@@ -5,6 +5,16 @@ namespace EnhancedCarTuning.Appearance.Glass
 {
     internal static class GlassWindowClassifier
     {
+        internal static bool TryLampGroup(string name, out GlassGroup group)
+        {
+            group = GlassGroup.LampsFront;
+            string text = name ?? "";
+            int start = text.IndexOf("_Win_Light_", StringComparison.OrdinalIgnoreCase);
+            if (start < 0) return false;
+            string suffix = text.Substring(start + 11);
+            if (suffix.IndexOf("Back", StringComparison.OrdinalIgnoreCase) >= 0 || suffix.IndexOf("Rear", StringComparison.OrdinalIgnoreCase) >= 0) group = GlassGroup.LampsBack;
+            return suffix.IndexOf("Left", StringComparison.OrdinalIgnoreCase) >= 0 || suffix.IndexOf("Right", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
         internal static bool IsLampName(string name)
         {
             var text = (name ?? "").ToLowerInvariant();
@@ -22,6 +32,7 @@ namespace EnhancedCarTuning.Appearance.Glass
         internal static GlassGroup Classify(string name, Vector3 center)
         {
             var text = (name ?? "").Trim().ToLowerInvariant();
+            if(text.Contains("_win_top"))return GlassGroup.Sunroof;
             if (text.Contains("windshield") || text.Contains("windscreen")) return GlassGroup.Front;
             if (text.Contains("door") || text.Contains("mini") || text.Contains("side") || text.Contains("left") || text.Contains("right") ||
                 text.Contains("_win_l_") || text.Contains("_win_r_") || text.EndsWith("_win_l", StringComparison.Ordinal) || text.EndsWith("_win_r", StringComparison.Ordinal)) return GlassGroup.Middle;

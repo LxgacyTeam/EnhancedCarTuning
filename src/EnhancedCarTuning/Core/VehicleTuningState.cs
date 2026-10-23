@@ -78,8 +78,9 @@ namespace EnhancedCarTuning.Core
             var wheels = settings.Wheels;
             if (!WheelModelCatalog.IsKnown(wheels.Front.ModelId)) wheels = wheels.WithModel(AxleTarget.Front, "stock");
             if (!WheelModelCatalog.IsKnown(wheels.Rear.ModelId)) wheels = wheels.WithModel(AxleTarget.Rear, "stock");
-            if (!EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(wheels.Front.TireId)) wheels = wheels.WithTire(AxleTarget.Front, "stock");
-            if (!EnhancedCarTuning.Wheels.Tires.TireCatalog.IsKnown(wheels.Rear.TireId)) wheels = wheels.WithTire(AxleTarget.Rear, "stock");
+            float maxRadius = WheelVehicleLimits.ForCar(Car);
+            if (wheels.Front.Get(WheelParameter.Radius) > maxRadius) wheels = wheels.With(AxleTarget.Front, WheelParameter.Radius, maxRadius);
+            if (wheels.Rear.Get(WheelParameter.Radius) > maxRadius) wheels = wheels.With(AxleTarget.Rear, WheelParameter.Radius, maxRadius);
             if (!wheels.Equals(settings.Wheels)) settings = new TuningSettings(settings.EngineId, settings.Drive, wheels);
             if (!EngineCatalog.IsKnown(settings.EngineId))
             {

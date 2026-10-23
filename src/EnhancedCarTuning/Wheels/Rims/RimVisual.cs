@@ -1,4 +1,5 @@
 using System;
+using EnhancedCarTuning.Appearance.Body;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -17,8 +18,8 @@ namespace EnhancedCarTuning.Wheels.Rims
         private float baseWidth;
         private MeshRenderer[] renderers;
         private readonly MaterialPropertyBlock properties = new MaterialPropertyBlock();
-        private Color lastColor;
-        private float lastGloss = -1, lastMetallic = -1;
+        private PaintFinish lastOuter, lastInner;
+        private float lastKilled = -1;
         private float lastRadius = -1, lastWidth = -1;
         private bool disposed;
         internal string ModelId { get; private set; }
@@ -48,7 +49,7 @@ namespace EnhancedCarTuning.Wheels.Rims
                 var point = next.transform.InverseTransformPoint(filter.transform.TransformPoint(vertex));
                 minX = Mathf.Min(minX, point.x * baseScale.x); maxX = Mathf.Max(maxX, point.x * baseScale.x);
             }
-            baseWidth = Mathf.Max(maxX - minX, .001f); lastGloss = -1; lastRadius = lastWidth = -1;
+            baseWidth = Mathf.Max(maxX - minX, .001f); lastOuter = lastInner = null; lastKilled = -1; lastRadius = lastWidth = -1;
             originalRim.enabled = false; next.SetActive(true);
             if (previous) { previous.SetActive(false); Object.Destroy(previous); }
             return true;
@@ -61,14 +62,25 @@ namespace EnhancedCarTuning.Wheels.Rims
             float scale = diameter / (200 * baseRadius);
             instance.transform.localScale = new Vector3(baseScale.x,baseScale.y * scale,baseScale.z * scale);
         }
-        internal void SetFinish(Color color,float gloss,float metallic)
+        internal void SetFinish(PaintFinish outer, PaintFinish inner, float killed)
         {
-            if (!instance) return;
-            if (lastGloss == gloss && lastMetallic == metallic && lastColor == color) return;
-            lastColor = color; lastGloss = gloss; lastMetallic = metallic;
-            properties.SetColor("_Color",new Color(color.r,color.g,color.b,1));
-            properties.SetFloat("_Glossiness",Mathf.Clamp01(gloss)); properties.SetFloat("_Metallic",Mathf.Clamp01(metallic));
-            foreach (var renderer in renderers) if (renderer) renderer.SetPropertyBlock(properties);
+            if (!instance || Equals(lastOuter, outer) && Equals(lastInner, inner) && lastKilled == killed) return;
+            lastOuter = outer; lastInner = inner; lastKilled = killed;
+            foreach (var renderer in renderers)
+            {
+                if (!renderer) continue;
+                var materials = renderer.sharedMaterials;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    var material = materials[i]; if (!material) continue;
+                    PaintFinish finish = material.name.StartsWith("Outer", StringComparison.Ordinal) ? outer : material.name.StartsWith("Inner", StringComparison.Ordinal) ? inner : null;
+                    if (finish == null) continue;
+                    var color = finish.Color; if (killed > .5f) color *= .25f; color.a = 1;
+                    properties.Clear(); properties.SetColor("_Color", color);
+                    properties.SetFloat("_Glossiness", finish.Gloss); properties.SetFloat("_Metallic", finish.Metallic);
+                    renderer.SetPropertyBlock(properties, i);
+                }
+            }
         }
         internal void SetLocalSize(float radius, float width)
         {

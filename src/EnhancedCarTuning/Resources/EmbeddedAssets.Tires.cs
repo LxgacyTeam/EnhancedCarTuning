@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using EnhancedCarTuning.Resources;
-using EnhancedCarTuning.Wheels.Tires;
 using UnityEngine;
 
 namespace EnhancedCarTuning
@@ -10,61 +8,38 @@ namespace EnhancedCarTuning
     {
         private static AssetBundle tiresBundle;
         private static bool tiresAttempted;
-        private static readonly Dictionary<string,TireData> tiresById = new Dictionary<string,TireData>(StringComparer.Ordinal);
-        private static readonly Dictionary<string,GameObject> tirePrefabs = new Dictionary<string,GameObject>(StringComparer.Ordinal);
-        internal static GameObject TirePrefab(string id, bool left)
+        private static readonly GameObject[] tirePrefabs = new GameObject[2];
+        internal static GameObject TirePrefab(bool left)
         {
-            if (NetManager.isServer || !TireCatalog.IsKnown(id) || id == "stock") return null;
-            EnsureTires();
-            if (!tiresBundle || !tiresById.TryGetValue(id, out var model)) return null;
-            string address = left ? model.left : model.right;
-            if (tirePrefabs.TryGetValue(address, out var cached) && cached) return cached;
-            var prefab = tiresBundle.LoadAsset<GameObject>(address);
-            if (!prefab || prefab.GetComponentsInChildren<MonoBehaviour>(true).Length != 0) throw new InvalidOperationException("Invalid tire prefab: " + address);
-            var filters = prefab.GetComponentsInChildren<MeshFilter>(true);
-            if (filters.Length != 1) throw new InvalidOperationException("Expected a single tire mesh: " + address);
-            foreach (var filter in filters)
-            {
-                var renderer = filter.GetComponent<MeshRenderer>();
-                if (!filter.sharedMesh || !filter.sharedMesh.isReadable || filter.sharedMesh.vertexCount < 12 || !renderer || renderer.sharedMaterials.Length != filter.sharedMesh.subMeshCount)
-                    throw new InvalidOperationException("Invalid tire geometry: " + address);
-            }
-            tirePrefabs[address] = prefab; return prefab;
-        }
-        private static void EnsureTires()
-        {
-            if (tiresAttempted || NetManager.isServer) return;
-            tiresAttempted = true;
+            if (NetManager.isServer) return null;
+            int side = left ? 0 : 1;
+            if (tirePrefabs[side]) return tirePrefabs[side];
             try
             {
-                var bytes = ResourceContainer.Read("ect-tires.bundle");
-                if (bytes == null) throw new InvalidOperationException("Embedded tire bundle is missing.");
-                tiresBundle = AssetBundle.LoadFromMemory(bytes);
-                if (!tiresBundle) throw new InvalidOperationException("Cannot load embedded tire bundle.");
-                var json = tiresBundle.LoadAsset<TextAsset>("tires/catalog");
-                if (!json) throw new InvalidOperationException("Tire catalog TextAsset is missing.");
-                var data = TireCatalogJson.Read(json.text);
-                if (data == null || data.version != 1 || data.models == null || data.models.Length != TireCatalog.Ids.Length)
-                    throw new InvalidOperationException("Invalid tire catalog version or count.");
-                foreach (var entry in data.models)
+                if (!tiresAttempted)
                 {
-                    if (entry == null || !TireCatalog.IsKnown(entry.id) || entry.id == "stock" || entry.name != TireCatalog.Label(entry.id) ||
-                        entry.left != "tires/" + entry.id + "/left" || entry.right != "tires/" + entry.id + "/right" ||
-                        tiresById.ContainsKey(entry.id) || !tiresBundle.Contains(entry.left) || !tiresBundle.Contains(entry.right))
-                        throw new InvalidOperationException("Invalid tire catalog entry.");
-                    tiresById.Add(entry.id, entry);
+                    tiresAttempted = true;
+                    var bytes = ResourceContainer.Read("ect-tires.bundle");
+                    if (bytes != null) tiresBundle = AssetBundle.LoadFromMemory(bytes);
+                    if (!tiresBundle) throw new InvalidOperationException("Shared tire bundle could not be loaded (" + ResourceContainer.Platform + ").");
                 }
+                if (!tiresBundle) return null;
+                var prefab = tiresBundle.LoadAsset<GameObject>(left ? "tires/shared/left" : "tires/shared/right");
+                if (!prefab || prefab.GetComponentsInChildren<MonoBehaviour>(true).Length != 0) throw new InvalidOperationException("Invalid shared tire prefab.");
+                var filter = prefab.GetComponent<MeshFilter>(); var renderer = prefab.GetComponent<MeshRenderer>();
+                if (!filter || !filter.sharedMesh || !filter.sharedMesh.isReadable || filter.sharedMesh.vertexCount < 12 || !renderer || renderer.sharedMaterials.Length != filter.sharedMesh.subMeshCount)
+                    throw new InvalidOperationException("Shared tire must have readable geometry and matching material slots.");
+                var material = renderer.sharedMaterial;
+                if (!material || !material.shader || material.shader.name != "ECT/TireRubberTexture" || !material.shader.isSupported ||
+                    !material.mainTexture || material.mainTexture.name != "TireRubber_BaseColor-small")
+                    throw new InvalidOperationException("Shared tire requires the textured rubber shader and TireRubber_BaseColor-small. Install the matching resource DLL for this platform.");
+                return tirePrefabs[side] = prefab;
             }
-            catch (Exception error)
-            {
-                tiresById.Clear(); tirePrefabs.Clear();
-                if (tiresBundle) tiresBundle.Unload(true); tiresBundle = null;
-                Plugin.Warn("Cannot load embedded tires: " + error.Message);
-            }
+            catch (Exception error) { Plugin.Warn("Cannot load shared tire: " + error.Message); return null; }
         }
         private static void ClearTires()
         {
-            tiresById.Clear(); tirePrefabs.Clear();
+            tirePrefabs[0] = tirePrefabs[1] = null;
             if (tiresBundle) tiresBundle.Unload(true); tiresBundle = null; tiresAttempted = false;
         }
     }
