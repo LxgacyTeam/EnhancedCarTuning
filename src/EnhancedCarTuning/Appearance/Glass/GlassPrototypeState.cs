@@ -11,6 +11,7 @@ namespace EnhancedCarTuning.Appearance.Glass
 {
     internal sealed class GlassPrototypeState : MonoBehaviour
     {
+        internal const float InteriorTintFactor = .85f;
         private sealed class Target { internal bool Glass; }
         private sealed class Surface
         { internal CarWindow Window; internal MeshFilter Filter; internal MeshRenderer Renderer; internal int Slot; internal Material Original, FinishMaterial; internal GlassGroup Group; }
@@ -39,6 +40,13 @@ namespace EnhancedCarTuning.Appearance.Glass
         internal static bool IsGlass(CarPaintItems.Item item) => item != null && targets.TryGetValue(item, out var target) && target.Glass;
         internal static void SetGlass(CarPaintItems.Item item, bool glass)
         { if (item != null) targets.GetValue(item, _ => new Target()).Glass = glass; }
+        internal bool HasWindowTint(CarWindow window)
+        {
+            if (!isActiveAndEnabled || failed) return false;
+            foreach (var surface in surfaces)
+                if (surface.Window == window && !GlassGroupPaint.IsLamp(surface.Group) && Effective(surface.Group).Tint.a > .001f) return true;
+            return false;
+        }
         internal static GlassPrototypeState Ensure(CarPaintItems paint)
         {
             if (!paint) return null;
@@ -111,7 +119,7 @@ namespace EnhancedCarTuning.Appearance.Glass
             try
             {
                 if (!tint) tint = new Material(shader) { name = "ECT.Glass.Tint", renderQueue = 3100 };
-                float inside = Paint.car.isContainUser() && Cam.me && Cam.me.isFirstPerson ? .6f : 1;
+                float inside = Paint.car.isContainUser() && Cam.me && Cam.me.isFirstPerson ? InteriorTintFactor : 1;
                 tint.SetFloat("_Projected", 0); tint.SetColor("_Color", new Color(Active.r, Active.g, Active.b, TintOpacity(Active.a) * inside));
                 if (HasTint) Draw(tint, true);
                 int index = 0, drawn = 0;
@@ -149,6 +157,11 @@ namespace EnhancedCarTuning.Appearance.Glass
             foreach (var surface in surfaces)
             {
                 var setting = Effective(surface.Group); var finish = setting.Finish;
+                if (surface.Window && Cam.me && Paint && Paint.car && Paint.car.isContainUser() && Cam.me.isFirstPerson)
+                {
+                    float opacity = !GlassGroupPaint.IsLamp(surface.Group) && setting.Tint.a > .001f ? InteriorTintFactor : .6f;
+                    if (Mathf.Abs(surface.Window.lastSetColor.a - opacity) > .001f) surface.Window.CheckCameraInside();
+                }
                 if (!surface.Window || !surface.Renderer || !surface.Original) { Restore(surface, true); continue; }
                 if (!shader || finish == null || surface.Window.state != CarWindow.State.Normal) { Restore(surface, finish == null); continue; }
                 if (!surface.FinishMaterial) surface.FinishMaterial = new Material(shader) { name = "ECT.Glass.Finish" };
@@ -196,7 +209,7 @@ namespace EnhancedCarTuning.Appearance.Glass
                 {
                     var color = Effective(surface.Group).Tint;
                     if (color.a <= .001f) continue;
-                    float inside = Paint.car.isContainUser() && Cam.me && Cam.me.isFirstPerson ? .6f : 1;
+                    float inside = Paint.car.isContainUser() && Cam.me && Cam.me.isFirstPerson ? InteriorTintFactor : 1;
                     if (tintProperties == null) tintProperties = new MaterialPropertyBlock();
                     tintProperties.SetColor("_Color", new Color(color.r, color.g, color.b, TintOpacity(color.a) * inside));
                     drawingBuffer.DrawMesh(surface.Filter.sharedMesh, surface.Filter.transform.localToWorldMatrix, material, surface.Slot, 0, tintProperties);
@@ -226,9 +239,17 @@ namespace EnhancedCarTuning.Appearance.Glass
             item.size_y = .18f; item.depth = .7f;
         }
         internal void Reset()
-        { foreach (var surface in surfaces) Restore(surface, true); ActiveFinish = CommittedFinish = null;
-          ActiveGroups.Clear(); CommittedGroups.Clear();
-          Active = Committed = new Color(0, 0, 0, 0); SerializePreview = false; surfaces.Clear(); nextScan = 0; failed = false; }
+        {
+            ActiveFinish = CommittedFinish = null; ActiveGroups.Clear(); CommittedGroups.Clear();
+            Active = Committed = new Color(0, 0, 0, 0); SerializePreview = false;
+            foreach (var surface in surfaces)
+            {
+                Restore(surface, true);
+                if (surface.Window && surface.Window.car && Cam.me && Mathf.Abs(surface.Window.lastSetColor.a - InteriorTintFactor) < .001f)
+                    surface.Window.CheckCameraInside();
+            }
+            surfaces.Clear(); nextScan = 0; failed = false;
+        }
         private void OnEnable() { GlassOverlayRenderer.Register(this); }
         private void OnDisable() { GlassOverlayRenderer.Unregister(this); Reset(); Release(); }
         private void OnDestroy() { GlassOverlayRenderer.Unregister(this); Release(); }
