@@ -430,3 +430,10 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+UnityResourcesProject/Library/
+UnityResourcesProject/Temp/
+UnityResourcesProject/Logs/
+UnityResourcesProject/Assets/Generated/
+UnityResourcesProject/Assets/Editor/QA/
+build-logs/
+!UnityResourcesProject/SourceModels/**/*.obj

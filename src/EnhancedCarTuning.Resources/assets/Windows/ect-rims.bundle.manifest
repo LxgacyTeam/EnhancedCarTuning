@@ -1,0 +1,114 @@
+ManifestFileVersion: 0
+CRC: 3664081172
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 37252302f013df767951b8ca3ef2fa29
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: c5b0ef9cbe7f1b0711a69fa9bef55a46
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+Assets:
+- Assets/Generated/SB_Rim_36_L.prefab
+- Assets/Generated/SB_Rim_30_R.prefab
+- Assets/Generated/SB_Rim_28_L.prefab
+- Assets/Generated/SB_Rim_28_R.prefab
+- Assets/Generated/SB_Rim_15_R.prefab
+- Assets/Generated/SB_Rim_15_L.prefab
+- Assets/Generated/SB_Rim_36_R.prefab
+- Assets/Generated/SB_Rim_29_L.prefab
+- Assets/Generated/SB_Rim_37_R.prefab
+- Assets/Generated/SB_Rim_05_R.prefab
+- Assets/Generated/SB_Rim_40_L.prefab
+- Assets/Generated/SB_Rim_17_R.prefab
+- Assets/Generated/SB_Rim_14_R.prefab
+- Assets/Generated/SB_Rim_41_R.prefab
+- Assets/Generated/SB_Rim_07_L.prefab
+- Assets/Generated/SB_Rim_31_L.prefab
+- Assets/Generated/SB_Rim_35_L.prefab
+- Assets/Generated/SB_Rim_18_L.prefab
+- Assets/Generated/SB_Rim_42_R.prefab
+- Assets/Generated/SB_Rim_37_L.prefab
+- Assets/Generated/SB_Rim_22_L.prefab
+- Assets/Generated/SB_Rim_25_L.prefab
+- Assets/Generated/SB_Rim_22_R.prefab
+- Assets/Generated/SB_Rim_09_R.prefab
+- Assets/Generated/SB_Rim_27_L.prefab
+- Assets/Generated/SB_Rim_06_L.prefab
+- Assets/Generated/SB_Rim_38_R.prefab
+- Assets/Generated/SB_Rim_16_R.prefab
+- Assets/Generated/SB_Rim_10_R.prefab
+- Assets/Generated/SB_Rim_02_L.prefab
+- Assets/Generated/RimCatalog.json
+- Assets/Generated/SB_Rim_21_R.prefab
+- Assets/Generated/SB_Rim_13_R.prefab
+- Assets/Generated/SB_Rim_14_L.prefab
+- Assets/Generated/SB_Rim_02_R.prefab
+- Assets/Generated/SB_Rim_32_L.prefab
+- Assets/Generated/SB_Rim_39_R.prefab
+- Assets/Generated/SB_Rim_26_R.prefab
+- Assets/Generated/SB_Rim_38_L.prefab
+- Assets/Generated/SB_Rim_34_R.prefab
+- Assets/Generated/SB_Rim_03_L.prefab
+- Assets/Generated/SB_Rim_25_R.prefab
+- Assets/Generated/SB_Rim_32_R.prefab
+- Assets/Generated/SB_Rim_05_L.prefab
+- Assets/Generated/SB_Rim_35_R.prefab
+- Assets/Generated/SB_Rim_29_R.prefab
+- Assets/Generated/SB_Rim_44_R.prefab
+- Assets/Generated/SB_Rim_39_L.prefab
+- Assets/Generated/SB_Rim_27_R.prefab
+- Assets/Generated/SB_Rim_19_L.prefab
+- Assets/Generated/SB_Rim_43_L.prefab
+- Assets/Generated/SB_Rim_08_R.prefab
+- Assets/Generated/SB_Rim_12_R.prefab
+- Assets/Generated/SB_Rim_44_L.prefab
+- Assets/Generated/SB_Rim_07_R.prefab
+- Assets/Generated/SB_Rim_13_L.prefab
+- Assets/Generated/SB_Rim_40_R.prefab
+- Assets/Generated/SB_Rim_08_L.prefab
+- Assets/Generated/SB_Rim_18_R.prefab
+- Assets/Generated/SB_Rim_12_L.prefab
+- Assets/Generated/SB_Rim_01_R.prefab
+- Assets/Generated/SB_Rim_16_L.prefab
+- Assets/Generated/SB_Rim_10_L.prefab
+- Assets/Generated/SB_Rim_33_R.prefab
+- Assets/Generated/SB_Rim_26_L.prefab
+- Assets/Generated/SB_Rim_03_R.prefab
+- Assets/Generated/SB_Rim_20_R.prefab
+- Assets/Generated/SB_Rim_01_L.prefab
+- Assets/Generated/SB_Rim_20_L.prefab
+- Assets/Generated/SB_Rim_24_R.prefab
+- Assets/Generated/SB_Rim_31_R.prefab
+- Assets/Generated/SB_Rim_41_L.prefab
+- Assets/Generated/SB_Rim_30_L.prefab
+- Assets/Generated/SB_Rim_09_L.prefab
+- Assets/Generated/SB_Rim_19_R.prefab
+- Assets/Generated/SB_Rim_21_L.prefab
+- Assets/Generated/SB_Rim_42_L.prefab
+- Assets/Generated/SB_Rim_24_L.prefab
+- Assets/Generated/SB_Rim_33_L.prefab
+- Assets/Generated/SB_Rim_43_R.prefab
+- Assets/Generated/SB_Rim_06_R.prefab
+- Assets/Generated/SB_Rim_17_L.prefab
+- Assets/Generated/SB_Rim_34_L.prefab
+Dependencies: []

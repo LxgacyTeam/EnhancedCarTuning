@@ -1,0 +1,17 @@
+ManifestFileVersion: 0
+CRC: 3725572940
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 815e808a690eb38bda53911270617d9d
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 677a1d6a6e8c5d2da1d9d0fadde392d8
+HashAppended: 0
+ClassTypes:
+- Class: 48
+  Script: {instanceID: 0}
+Assets:
+- Assets/GlassFinish.shader
+- Assets/GlassOverlay.shader
+Dependencies: []
