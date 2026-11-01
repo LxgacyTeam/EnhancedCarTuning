@@ -430,6 +430,8 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# ECT reproducible Unity resources
 UnityResourcesProject/Library/
 UnityResourcesProject/Temp/
 UnityResourcesProject/Logs/

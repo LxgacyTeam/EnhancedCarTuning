@@ -1,6 +1,7 @@
 using System.Xml;
 using EnhancedCarTuning.Appearance.Glass;
 using HarmonyLib;
+using UnityEngine;
 
 namespace EnhancedCarTuning.Patches
 {
@@ -39,4 +40,41 @@ namespace EnhancedCarTuning.Patches
         private static void Postfix(CarPaintItems.Item __instance, CarPaintItems.Item w, ref bool __result)
         { __result |= GlassPrototypeState.IsGlass(__instance) != GlassPrototypeState.IsGlass(w); }
     }
+    [HarmonyPatch(typeof(Paint2Texture), "Update")]
+    internal static class GlassVinylPreviewPatch
+    {
+        private static void Postfix(Paint2Texture __instance)
+        {
+            var garage = __instance.GetComponentInParent<CarGarageUI>();
+            bool hide = garage && GlassPrototypeState.IsGlass(garage.editItem);
+            var preview = __instance.GetComponent<GlassVinylPreview>();
+            if (!preview && hide) preview = __instance.gameObject.AddComponent<GlassVinylPreview>();
+            if (preview) preview.Refresh(__instance.boxPreview, hide);
+        }
+    }
+
+    [HarmonyPatch(typeof(CarGarageUI), "UpPaint")]
+    internal static class GlassVinylBlinkPatch
+    {
+        private static void Prefix(CarGarageUI __instance)
+        {
+            if (GlassPrototypeState.IsGlass(__instance.editItem)) __instance.paintTimeChange = 0f;
+        }
+    }
+
+    [HarmonyPatch(typeof(CarWindow), "CheckCameraInside")]
+    internal static class GlassInteriorTintPatch
+    {
+        private static void Postfix(CarWindow __instance)
+        {
+            var car = __instance.car;
+            if (!car || !car.isContainUser() || !Cam.me || !Cam.me.isFirstPerson || !car.paintItems) return;
+            var state = car.paintItems.GetComponent<GlassPrototypeState>();
+            if (!state || !state.HasWindowTint(__instance)) return;
+            var color = __instance.lastSetColor;
+            color.a = GlassPrototypeState.InteriorTintFactor;
+            __instance.SetMatColor(color);
+        }
+    }
+
 }

@@ -141,7 +141,7 @@ namespace EnhancedCarTuning.Appearance.UI
             picker.opacity.gameObject.SetActive(true);
             ColorPickerHex.Attach(picker).SetExtraHeight(step);
             if (picker.opacity.text)
-            { picker.opacity.text.enabled = false; picker.opacity.text.isInit = true; picker.opacity.text.ui.text = ECTLocalization.T("ТОНИРОВКА"); }
+            { picker.opacity.text.enabled = false; picker.opacity.text.isInit = true; picker.opacity.text.ui.text = ECTLocalization.T("ПРОЗРАЧНОСТЬ"); }
             SyncPicker(); picker.eventUp = FlushPicker;
             root.gameObject.SetActive(true); Layout(); RefreshRows();
         }

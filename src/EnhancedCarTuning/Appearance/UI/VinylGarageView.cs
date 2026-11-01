@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EnhancedCarTuning.Appearance.Vinyls;
+using EnhancedCarTuning.Appearance.Glass;
 using EnhancedCarTuning.UI;
 using EnhancedCarTuning.Localization;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace EnhancedCarTuning.Appearance.UI
         private RawImage previewRaw;
         private bool manualNativeImgClick;
         private bool nativeImgWasActive;
-        private MenuButtonGroup symmetry, bold, italic, font;
+        private MenuButtonGroup symmetry, bold, italic, font, textSurface;
         private VinylStyleCheck boldCheck, italicCheck;
         private InputField input;
         private GameObject ownEventSystem;
@@ -122,6 +123,11 @@ namespace EnhancedCarTuning.Appearance.UI
                 bold.transform.SetParent(textPanel, false);
                 italic.transform.SetParent(textPanel, false);
                 font.transform.SetParent(textPanel, false);
+                textSurface = Button(factory, "TextSurface", "НАНЕСЕНИЕ: КУЗОВ", 4, 836, 250, 54, ToggleTextSurface);
+                textSurface.transform.SetParent(root, false);
+                textSurface.text.ui.resizeTextForBestFit = true;
+                textSurface.text.ui.resizeTextMinSize = 16;
+                textSurface.text.ui.resizeTextMaxSize = 27;
                 bold.text.ui.fontStyle = FontStyle.Bold;
                 italic.text.ui.fontStyle = FontStyle.BoldAndItalic;
                 boldCheck = StyleCheck(bold);
@@ -201,53 +207,11 @@ namespace EnhancedCarTuning.Appearance.UI
         {
             if (input || !textPanel || Time.unscaledTime < nextInputSearch) return;
             nextInputSearch = Time.unscaledTime + 1;
-            var source = UnityEngine.Resources.FindObjectsOfTypeAll<InputField>().FirstOrDefault(f => f &&
-                f.name == "Nik Name" && f.transform.parent && f.transform.parent.name == "NikTxt");
-            var staging = NativeMenuFactory.Rect("ECT.InputStaging", textPanel, 0, 0);
-            staging.gameObject.SetActive(false);
-            GameObject go;
-            if (source) go = Object.Instantiate(source.gameObject, staging, false);
-            else
-            {
-                var rect = NativeMenuFactory.Rect("ECT.TextInput", staging, 264, 62); go = rect.gameObject;
-                var background = go.AddComponent<Image>(); background.color = Color.white;
-                var field = go.AddComponent<InputField>(); field.targetGraphic = background;
-                var text = NativeMenuFactory.Rect("Text", rect, 0, 0).gameObject.AddComponent<Text>();
-                text.font = UnityEngine.Resources.GetBuiltinResource<Font>("Arial.ttf"); text.color = new Color(.18f,.18f,.18f,1);
-                text.alignment = TextAnchor.MiddleLeft; field.textComponent = text;
-                var hint = NativeMenuFactory.Rect("Placeholder", rect, 0, 0).gameObject.AddComponent<Text>();
-                hint.font = text.font; hint.color = new Color(.35f,.35f,.35f,.7f);
-                hint.fontSize = 30; field.placeholder = hint;
-                Plugin.Warn("NikTxt input template unavailable; using a native uGUI input field for text vinyls.");
-            }
-            go.SetActive(false);
-            input = go.GetComponent<InputField>();
-            foreach (var component in go.GetComponentsInChildren<MonoBehaviour>(true))
-                if (component && component != input && !(component is UnityEngine.EventSystems.UIBehaviour))
-                { component.enabled = false; Object.DestroyImmediate(component); }
-            foreach (var caret in go.GetComponentsInChildren<RectTransform>(true))
-                if (caret.name.IndexOf("Input Caret", StringComparison.OrdinalIgnoreCase) >= 0) Object.DestroyImmediate(caret.gameObject);
-            input.onValueChanged = new InputField.OnChangeEvent(); input.onEndEdit = new InputField.SubmitEvent();
-            input.onValidateInput = (text, index, character) => char.IsControl(character) ? '\0' : character;
-            input.contentType = InputField.ContentType.Standard;
-            input.characterValidation = InputField.CharacterValidation.None;
-            input.lineType = InputField.LineType.SingleLine; input.characterLimit = TextVinylData.MaxLength;
-            input.readOnly = false; input.text = "";
-            input.interactable = true; input.enabled = true;
-            input.customCaretColor = true; input.caretColor = new Color(.1f,.1f,.1f,1);
-            if (input.textComponent)
-            { input.textComponent.supportRichText = false; input.textComponent.fontSize = 28;
-              input.textComponent.transform.SetParent(input.transform, false);
-              input.textComponent.gameObject.SetActive(true); input.textComponent.enabled = true;
-              input.textComponent.color = new Color(.1f,.1f,.1f,1); input.textComponent.resizeTextForBestFit = false;
-              Fit(input.textComponent.rectTransform, .03f, .05f, .97f, .95f); }
-            if (input.placeholder is Text placeholder)
-            { placeholder.text = ECTLocalization.T("Введите текст"); Fit(placeholder.rectTransform, .03f, .05f, .97f, .95f); }
-            go.name = "ECT.VinylTextInput"; go.transform.SetParent(textPanel, false);
-            Place((RectTransform)go.transform, 8, 8, 250, 54);
+            input = NativeTextField.Create("ECT.VinylTextInput",textPanel,ECTLocalization.T("Введите текст"),TextVinylData.MaxLength);
+            Place((RectTransform)input.transform,8,8,250,54);
             input.onValueChanged.AddListener(_ => { if (!syncing) QueueText(); });
             input.onEndEdit.AddListener(_ => Flush());
-            go.SetActive(true); Object.Destroy(staging.gameObject);
+
             selected = null; selectedName = null;
         }
         private void ToggleSymmetry()
@@ -263,11 +227,26 @@ namespace EnhancedCarTuning.Appearance.UI
             var info = TextVinylTextures.Info(data.Name);
             var item = garage.editItem;
             if (item == null)
-            { item = garage.carPaint.AddItem(info); item.size_y = .2f; garage.SetLastSetItem(item); }
+            { item = garage.carPaint.AddItem(info); garage.SetLastSetItem(item); }
             else { item.SetSpriteInfo(info); item.acpect = info.GetSizeAcpect(); garage.SetLastSetItem(item); }
             garage.carPaint.UpImage(); selected = null; Refresh();
         }
         private void SetStyle(int value) { style = value; QueueText(); }
+        private void ToggleTextSurface()
+        {
+            Flush();
+            var item = garage.editItem;
+            if (item == null || item.spriteInfo == null || item.spriteInfo.type == CarPaintSprites.TypeVinil.FillCollor ||
+                garage.GetComponent<GarageTuningPanel>()?.Session?.CanEdit != true) return;
+            var state = GlassPrototypeState.Ensure(garage.carPaint);
+            bool glass = GlassPrototypeState.IsGlass(item);
+            state.Scan();
+            if (!glass && (state.WindowCount == 0 || state.GlassCount >= 32)) return;
+            GlassPrototypeState.SetGlass(item, !glass);
+            garage.carPaint.needDraw = true;
+            garage.carPaint.UpImage();
+            Refresh();
+        }
         private void QueueText()
         {
             if (garage.editItem == null || !TextVinylData.IsText(garage.editItem.spriteName)) return;
@@ -313,6 +292,9 @@ namespace EnhancedCarTuning.Appearance.UI
             boldCheck.color = bold.text.ui.color;
             italicCheck.color = italic.text.ui.color;
             NativeMenuFactory.SetLabel(font, TextVinylData.Fonts[fontIndex]);
+            NativeMenuFactory.SetLabel(textSurface, GlassPrototypeState.IsGlass(item) ? "НАНЕСЕНИЕ: СТЕКЛА" : "НАНЕСЕНИЕ: КУЗОВ");
+            textSurface.gameObject.SetActive(item != null);
+            textSurface.nowButtonDissabe = item == null || item.spriteInfo == null || item.spriteInfo.type == CarPaintSprites.TypeVinil.FillCollor || garage.GetComponent<GarageTuningPanel>()?.Session?.CanEdit != true;
             if (pending != null && Time.unscaledTime >= nextText) Flush();
             if (!menu.gameObject.activeInHierarchy) Flush();
             if (input && input.isFocused)
@@ -364,11 +346,14 @@ namespace EnhancedCarTuning.Appearance.UI
             const float padding = 8f, styleSide = 58f, inputHeight = 54f;
             float fontWidth = width - 2 * (styleSide + gap);
             float styleY = padding + inputHeight + 12f;
+            float surfaceY = styleY + styleSide + gap;
             Place(textPanel, x - padding, inputY - padding, width + 2 * padding, styleY + styleSide + padding);
             if (input) Place((RectTransform)input.transform, padding, padding, width, inputHeight);
             Place((RectTransform)bold.transform, padding, styleY, styleSide, styleSide);
             Place((RectTransform)italic.transform, padding + styleSide + gap, styleY, styleSide, styleSide);
             Place((RectTransform)font.transform, padding + 2 * (styleSide + gap), styleY, fontWidth, styleSide);
+            bool textSelected = garage.editItem != null && TextVinylData.IsText(garage.editItem.spriteName);
+            Place((RectTransform)textSurface.transform, x, textSelected ? inputY - padding + surfaceY : inputY, width, inputHeight);
         }
 
         private void HideNativeImgDecorations()

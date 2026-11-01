@@ -60,6 +60,9 @@ namespace EnhancedCarTuning.Patches
             harmony.CreateClassProcessor(typeof(GlassPrototypeItemClonePatch)).Patch();
             harmony.CreateClassProcessor(typeof(GlassPrototypeClonePatch)).Patch();
             harmony.CreateClassProcessor(typeof(GlassPrototypeChangesPatch)).Patch();
+            harmony.CreateClassProcessor(typeof(GlassVinylPreviewPatch)).Patch();
+            harmony.CreateClassProcessor(typeof(GlassVinylBlinkPatch)).Patch();
+            harmony.CreateClassProcessor(typeof(GlassInteriorTintPatch)).Patch();
         }
     }
 }

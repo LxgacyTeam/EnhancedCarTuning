@@ -15,6 +15,7 @@ namespace EnhancedCarTuning.Appearance.Body
             for (int i = root.ChildNodes.Count - 1; i >= 0; i--) if (root.ChildNodes[i].Name == Node) root.RemoveChild(root.ChildNodes[i]);
             if (settings.IsEmpty) return;
             var node = root.OwnerDocument.CreateElement(Node); node.SetAttribute("version", "1");
+            node.SetAttribute("IncludeInVP", "true");
             for (int i = 0; i < BodyPaintSettings.Count; i++)
             {
                 var finish = settings[(BodyPart)i]; if (finish == null) continue;
