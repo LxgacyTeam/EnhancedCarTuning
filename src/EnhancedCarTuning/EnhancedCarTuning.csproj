@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>EnhancedCarTuning</AssemblyName>
     <RootNamespace>EnhancedCarTuning</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.1.1</Version>
     <Authors>LxgacyTeam</Authors>
     <OutputPath>bin\$(Configuration)\$(ResourcesPlatform)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

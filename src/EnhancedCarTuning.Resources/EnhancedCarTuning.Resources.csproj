@@ -4,7 +4,7 @@
     <IntermediateOutputPath>obj\$(Configuration)\$(ResourcesPlatform)\</IntermediateOutputPath>
     <AssemblyName>EnhancedCarTuning.Resources</AssemblyName>
     <RootNamespace>EnhancedCarTuning.Resources</RootNamespace>
-    <Version>1.4.2</Version>
+    <Version>1.1.1</Version>
     <OutputPath>bin\$(Configuration)\$(ResourcesPlatform)\</OutputPath>
     <DefineConstants Condition="'$(ResourcesPlatform)' == 'Linux'">$(DefineConstants);ECT_LINUX</DefineConstants>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
