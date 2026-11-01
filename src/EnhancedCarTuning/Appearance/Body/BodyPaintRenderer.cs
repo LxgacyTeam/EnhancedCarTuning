@@ -119,14 +119,14 @@ namespace EnhancedCarTuning.Appearance.Body
         }
         private static BodyPart Identify(MeshLoadFromResources loader, Transform view)
         {
-            var part = BodyPartNames.Classify(string.IsNullOrEmpty(loader.mesh_name) ? loader.name : loader.mesh_name);
+            var part = BodyPartNames.Classify(loader.gameObject.name);
             if (part != BodyPart.Body) return part;
             for (var node = loader.transform; node && node != view; node = node.parent)
             {
                 part = BodyPartNames.Classify(node.name);
                 if (part != BodyPart.Body) return part;
             }
-            return BodyPart.Body;
+            return BodyPartNames.Classify(loader.mesh_name);
         }
         private void Restore(BodyPart part)
         {

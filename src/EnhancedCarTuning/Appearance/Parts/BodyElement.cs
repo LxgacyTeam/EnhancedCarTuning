@@ -2,12 +2,19 @@ using System;
 
 namespace EnhancedCarTuning.Appearance.Parts
 {
-    internal enum BodyElement { Hood, Trunk, FrontDoors, RearDoors, FrontBumper, RearBumper, Fenders, Bullbar, Sunroof, Roof, Grille, Cage }
+    internal enum BodyElement { Hood, Trunk, FrontDoors, RearDoors, FrontBumper, RearBumper, Fenders, Bullbar, Sunroof, Roof, Grille, Cage, SideDoor }
     internal static class BodyElementNames
     {
-        internal static readonly BodyElement[] Body = { BodyElement.Hood, BodyElement.Trunk, BodyElement.FrontDoors, BodyElement.RearDoors, BodyElement.FrontBumper, BodyElement.RearBumper, BodyElement.Fenders };
+        internal static readonly BodyElement[] Body = { BodyElement.Hood, BodyElement.Trunk, BodyElement.FrontDoors, BodyElement.RearDoors, BodyElement.FrontBumper, BodyElement.RearBumper, BodyElement.Fenders, BodyElement.SideDoor };
         internal static readonly BodyElement[] Specials = { BodyElement.Bullbar, BodyElement.Sunroof, BodyElement.Roof, BodyElement.Grille, BodyElement.Cage };
         private static bool Has(string text,string token) => text.IndexOf(token,StringComparison.OrdinalIgnoreCase)>=0;
+        private static readonly string[] CopySuffixes = { "_Dist_Lod", "_Lod", " (" };
+        private static bool Simple(string name,string detail)
+        {
+            foreach(string suffix in CopySuffixes)
+            { int at=name.IndexOf(suffix,StringComparison.OrdinalIgnoreCase);if(at>=0)name=name.Substring(0,at); }
+            return string.Equals(name,detail,StringComparison.OrdinalIgnoreCase)||name.EndsWith("_"+detail,StringComparison.OrdinalIgnoreCase);
+        }
         private static bool Token(string text,string token)
         {
             int at=text.IndexOf(token,StringComparison.OrdinalIgnoreCase);
@@ -26,8 +33,8 @@ namespace EnhancedCarTuning.Appearance.Parts
             if(Has(n,"_Hood_Front_UP"))return false;
             if(Has(n,"_Bamper_Back"))part=BodyElement.RearBumper;
             else if(Has(n,"_Bamper_Front"))part=BodyElement.FrontBumper;
-            else if(Has(n,"_Door_Left_Back")||Has(n,"_Door_L_Back")||Has(n,"_Door_Right_Back")||Has(n,"_Door_R_Back"))part=BodyElement.RearDoors;
-            else if(Has(n,"_Door_Left_Front")||Has(n,"_Door_Right_Front")||Token(n,"_Door_L")||Token(n,"_Door_R")||Token(n,"_Door_Left")||Token(n,"_Door_Right"))part=BodyElement.FrontDoors;
+            else if(Has(n,"_Door_Left_Back")||Has(n,"_Door_L_Back")||Has(n,"_Door_Right_Back")||Has(n,"_Door_R_Back")||Has(n,"Door_Back_L")||Has(n,"Door_Back_R"))part=BodyElement.RearDoors;
+            else if(Has(n,"_Door_Left_Front")||Has(n,"_Door_Right_Front")||Has(n,"Door_Front_L")||Has(n,"Door_Front_R")||Token(n,"_Door_L")||Token(n,"_Door_R")||Token(n,"_Door_Left")||Token(n,"_Door_Right"))part=BodyElement.FrontDoors;
             else if(Has(n,"_Hood_Back"))part=BodyElement.Trunk;
             else if(Has(n,"_Hood_Front"))part=BodyElement.Hood;
             else if(Token(n,"_Wing_L")||Token(n,"_Wing_R")||Token(n,"_Wing_Left")||Token(n,"_Wing_Right"))part=BodyElement.Fenders;
@@ -35,7 +42,9 @@ namespace EnhancedCarTuning.Appearance.Parts
             else if(Has(n,"_Kengurin")||Token(n,"_Bam")||Has(n,"GMC_Bamper"))part=BodyElement.Bullbar;
             else if(Has(n,"_Hood_Top")||Has(n,"_Win_Top"))part=BodyElement.Sunroof;
             else if(Has(n,"_Roof"))part=BodyElement.Roof;
-            else if(Has(n,"_Grill"))part=BodyElement.Grille;
+            else if(Has(n,"_Grill")||Has(n,"_Grid")||Simple(n,"Grill")||Simple(n,"Grid"))part=BodyElement.Grille;
+            else if(Simple(n,"Hood"))part=BodyElement.Hood;
+            else if(Token(n,"GMC_Door"))part=BodyElement.SideDoor;
             else return false;
             return true;
         }
@@ -46,6 +55,7 @@ namespace EnhancedCarTuning.Appearance.Parts
                 case BodyElement.Hood:return "КАПОТ";case BodyElement.Trunk:return "БАГАЖНИК";
                 case BodyElement.FrontDoors:return "ПЕРЕДНИЕ ДВЕРИ";case BodyElement.RearDoors:return "ЗАДНИЕ ДВЕРИ";
                 case BodyElement.FrontBumper:return "ПЕРЕДНИЙ БАМПЕР";case BodyElement.RearBumper:return "ЗАДНИЙ БАМПЕР";
+                case BodyElement.SideDoor:return "БОКОВАЯ ДВЕРЬ";
                 case BodyElement.Fenders:return "КРЫЛЬЯ";case BodyElement.Bullbar:return "КЕНГУРЯТНИК";
                 case BodyElement.Sunroof:return "ЛЮК";case BodyElement.Roof:return "КРЫША";
                 case BodyElement.Grille:return "РЕШЕТКА РАД.";default:return "КАРКАС";

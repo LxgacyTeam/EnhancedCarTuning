@@ -11,7 +11,7 @@ namespace EnhancedCarTuning.Localization
             { "Полицейская окраска", "Police paint" },
             { "ПОКРАСКА", "PAINT" }, { "ПОКРАСКА АВТО", "CAR PAINT" },
             { "ПОКРАСКА КУЗОВА", "BODY PAINT" }, { "ОБЩИЙ ЦВЕТ", "BASE COLOR" },
-            { "КУЗОВ", "BODY" }, { "КАПОТ", "HOOD" }, { "ПЕРЕДНИЙ БАМПЕР", "FRONT BUMPER" },
+            { "БОКОВАЯ ДВЕРЬ", "SIDE DOOR" }, { "КУЗОВ", "BODY" }, { "КАПОТ", "HOOD" }, { "ПЕРЕДНИЙ БАМПЕР", "FRONT BUMPER" },
             { "БАГАЖНИК", "TRUNK" }, { "ЗАДНИЙ БАМПЕР", "REAR BUMPER" }, { "ДВЕРИ", "DOORS" },
             { "ВЫБРАТЬ НЕСКОЛЬКО", "SELECT MANY" }, { "Покраска деталей кузова", "Paint body parts" },
             { "ЦВЕТ", "COLOR" }, { "ВИНИЛЫ", "VINYLS" }, { "ТЕКСТ", "TEXT" },

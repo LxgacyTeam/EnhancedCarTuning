@@ -27,11 +27,13 @@ namespace EnhancedCarTuning
             if (!prefab || prefab.GetComponentsInChildren<MonoBehaviour>(true).Length != 0)
                 throw new InvalidOperationException("Invalid rim prefab: " + address);
             var filters = prefab.GetComponentsInChildren<MeshFilter>(true);
-            if (filters.Length == 0) throw new InvalidOperationException("Rim has no geometry: " + address);
+            var rim = prefab.transform.Find("Rim"); var brake = prefab.transform.Find("BrakeDisc");
+            if (filters.Length != 2 || !rim || !brake || rim.GetComponent<MeshFilter>().sharedMesh.subMeshCount != 2 || brake.GetComponent<MeshFilter>().sharedMesh.subMeshCount != 1)
+                throw new InvalidOperationException("Expected two rim submeshes and a separate brake disc: " + address);
             foreach (var filter in filters)
             {
                 var renderer = filter.GetComponent<MeshRenderer>();
-                if (!filter.sharedMesh || filter.sharedMesh.vertexCount == 0 || !renderer || renderer.sharedMaterials.Length != filter.sharedMesh.subMeshCount)
+                if (!filter.sharedMesh || !filter.sharedMesh.isReadable || filter.sharedMesh.vertexCount == 0 || !renderer || renderer.sharedMaterials.Length != filter.sharedMesh.subMeshCount)
                     throw new InvalidOperationException("Invalid rim geometry or material slots: " + address);
             }
             rimPrefabs[address] = prefab; return prefab;
@@ -49,14 +51,14 @@ namespace EnhancedCarTuning
                 var json = rimsBundle.LoadAsset<TextAsset>("rims/catalog");
                 if (!json) throw new InvalidOperationException("Embedded rims/catalog TextAsset is missing.");
                 var data = RimCatalogJson.Read(json.text);
-                if (data == null || data.version != 1 || data.models == null || data.models.Length == 0 || data.models.Length > 128)
+                if (data == null || data.version != 1 || data.models == null || data.models.Length != RimModelIds.All.Length)
                     throw new InvalidOperationException("Invalid rim bundle catalog: version=" + (data == null ? "null" : data.version.ToString()) +
                         ", models=" + (data == null || data.models == null ? "null" : data.models.Length.ToString()));
                 var list = new List<RimModel>();
                 foreach (var entry in data.models)
                 {
                     string number = entry.sourceModel.ToString("00",System.Globalization.CultureInfo.InvariantCulture);
-                    if (entry.sourceModel < 1 || entry.sourceModel > 99 || entry.id != "rim_" + number ||
+                    if (entry.sourceModel < 1 || entry.sourceModel > 99 || entry.id != "rim_" + number || !RimModelIds.Contains(entry.id) ||
                         entry.left != "rims/" + number + "/left" || entry.right != "rims/" + number + "/right" ||
                         string.IsNullOrEmpty(entry.name) || entry.name.Length > 128 || rimById.ContainsKey(entry.id) ||
                         !ValidRadius(entry.leftRadius) || !ValidRadius(entry.rightRadius) || !rimsBundle.Contains(entry.left) || !rimsBundle.Contains(entry.right))

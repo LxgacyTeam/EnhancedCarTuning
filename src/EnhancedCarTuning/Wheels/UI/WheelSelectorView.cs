@@ -7,7 +7,7 @@ namespace EnhancedCarTuning.Wheels.UI
     {
         internal static Text Create(RectTransform frame, Text title, Font font, out WheelSwitchArrow[] arrows)
         {
-            Fit(title.rectTransform, .18f, .60f, .82f, .96f); title.alignment = TextAnchor.MiddleCenter;
+            Fit(title.rectTransform, .18f, .60f, .82f, .96f); title.alignment = TextAnchor.MiddleCenter; title.rectTransform.anchoredPosition += new Vector2(0, -10);
             var text = new GameObject("Value", typeof(RectTransform)).AddComponent<Text>();
             text.transform.SetParent(frame, false); Fit(text.rectTransform, .16f, .07f, .84f, .58f);
             text.font = font; text.alignment = TextAnchor.MiddleCenter; text.fontSize = text.resizeTextMaxSize = 28;
@@ -18,6 +18,7 @@ namespace EnhancedCarTuning.Wheels.UI
                 bool left = i == 0;
                 var rect = (RectTransform)new GameObject(left ? "Previous" : "Next", typeof(RectTransform)).transform;
                 rect.SetParent(frame, false); Fit(rect, left ? .035f : .885f, .32f, left ? .115f : .965f, .65f);
+                rect.anchoredPosition += new Vector2(left ? 15 : -10, 0); rect.localScale = Vector3.one * .75f;
                 var arrow = rect.gameObject.AddComponent<WheelSwitchArrow>(); arrow.Left = left; arrow.raycastTarget = false;
                 arrow.color = new Color(.88f, .9f, .91f, 1); arrows[i] = arrow;
             }

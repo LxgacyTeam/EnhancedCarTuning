@@ -14,19 +14,30 @@ namespace EnhancedCarTuning.Wheels.Rims
         private Vector3[] original;
         private Mesh source;
         private bool[] used;
+        private bool fixedBarrel;
         private float appliedRadius = -1;
 
         internal static StockTireGeometry Create(Mesh source)
         {
-            if (!source || !source.isReadable) return null;
-            var vertices = source.vertices;
-            if (vertices.Length < 12) return null;
+            if (!Analyze(source, out var vertices, out var kept, out var selected, out float inner, out float outer)) return null;
+            var mesh = Object.Instantiate(source); mesh.name = "ECT.Tire." + source.name;
+            for (int s = 0; s < selected.Length; s++) mesh.SetTriangles(selected[s], s, false);
+            mesh.bounds = source.bounds;
+            return new StockTireGeometry { source = source, Mesh = mesh, Center = source.bounds.center, OuterRadius = outer, InnerRadius = inner, original = vertices, used = kept };
+        }
+        internal static bool MeasureRim(Mesh source, out float inner, out float outer)
+        { return Analyze(source, out _, out _, out _, out inner, out outer); }
+        private static bool Analyze(Mesh source, out Vector3[] vertices, out bool[] kept, out int[][] selected, out float inner, out float outer)
+        {
+            vertices = null; kept = null; selected = null; inner = outer = 0;
+            if (!source || !source.isReadable) return false;
+            vertices = source.vertices;
+            if (vertices.Length < 12) return false;
             var center = source.bounds.center;
             var parent = new int[vertices.Length]; var radii = new float[vertices.Length];
-            float outer = 0;
             for (int i = 0; i < vertices.Length; i++)
             { parent[i] = i; radii[i] = new Vector2(vertices[i].y - center.y, vertices[i].z - center.z).magnitude; outer = Mathf.Max(outer, radii[i]); }
-            if (outer < .001f) return null;
+            if (outer < .001f) return false;
             var triangles = new int[source.subMeshCount][];
             for (int s = 0; s < triangles.Length; s++)
             {
@@ -37,8 +48,8 @@ namespace EnhancedCarTuning.Wheels.Rims
             var min = new float[vertices.Length]; var max = new float[vertices.Length];
             for (int i = 0; i < min.Length; i++) min[i] = float.MaxValue;
             for (int i = 0; i < vertices.Length; i++) { int p = Find(parent, i); min[p] = Mathf.Min(min[p], radii[i]); max[p] = Mathf.Max(max[p], radii[i]); }
-            var kept = new bool[vertices.Length]; var selected = new int[triangles.Length][];
-            int count = 0; float inner = outer;
+            kept = new bool[vertices.Length]; selected = new int[triangles.Length][];
+            int count = 0; inner = outer;
             for (int s = 0; s < triangles.Length; s++)
             {
                 var list = new List<int>();
@@ -50,11 +61,8 @@ namespace EnhancedCarTuning.Wheels.Rims
                 }
                 count += list.Count; selected[s] = list.ToArray();
             }
-            if (count < 72 || inner >= outer * .98f) return null;
-            var mesh = Object.Instantiate(source); mesh.name = "ECT.Tire." + source.name;
-            for (int s = 0; s < selected.Length; s++) mesh.SetTriangles(selected[s], s, false);
-            mesh.bounds = source.bounds;
-            return new StockTireGeometry { source = source, Mesh = mesh, Center = center, OuterRadius = outer, InnerRadius = inner, original = vertices, used = kept };
+            int total = 0; foreach (var part in triangles) total += part.Length;
+            return count >= 72 && count < total && inner < outer * .98f;
         }
         internal static StockTireGeometry FromTire(Mesh source)
         {
@@ -69,7 +77,7 @@ namespace EnhancedCarTuning.Wheels.Rims
             }
             if (outer < .001f || inner >= outer * .98f) return null;
             var mesh = Object.Instantiate(source); mesh.name = "ECT.CustomTire." + source.name;
-            return new StockTireGeometry { source = source, Mesh = mesh, Center = center, OuterRadius = outer, InnerRadius = inner, original = vertices, used = used };
+            return new StockTireGeometry { source = source, Mesh = mesh, Center = center, OuterRadius = outer, InnerRadius = inner, original = vertices, used = used, fixedBarrel = true };
         }
         internal Mesh CreateRimMesh()
         {
@@ -94,7 +102,9 @@ namespace EnhancedCarTuning.Wheels.Rims
             {
                 if (!used[i]) continue;
                 var delta = vertices[i] - Center; float r = new Vector2(delta.y, delta.z).magnitude;
-                float target = Mathf.Lerp(radius, OuterRadius, Mathf.InverseLerp(InnerRadius, OuterRadius, r));
+                float shoulder = fixedBarrel ? Mathf.Max(InnerRadius, OuterRadius * .95f) : OuterRadius;
+                if (r >= shoulder) continue;
+                float target = Mathf.Lerp(radius, shoulder, Mathf.InverseLerp(InnerRadius, shoulder, r));
                 vertices[i].y = Center.y + delta.y * target / Mathf.Max(r, .00001f);
                 vertices[i].z = Center.z + delta.z * target / Mathf.Max(r, .00001f);
             }

@@ -7,13 +7,14 @@ namespace EnhancedCarTuning.Patches
     [HarmonyPatch(typeof(CarControl), "Awake")]
     internal static class CarAwakePatch
     {
-        private static void Postfix(CarControl __instance) => VehicleTuningState.Ensure(__instance);
+        private static void Postfix(CarControl __instance)
+        {VehicleTuningState.Ensure(__instance);if(Appearance.Parts.BodyPartsState.IsBedVehicle(__instance))Appearance.Parts.BodyPartsState.Ensure(__instance);}
     }
 
     [HarmonyPatch(typeof(CarControl), "OnDisable")]
     internal static class CarPoolPatch
     {
-        private static void Prefix(CarControl __instance) => __instance.GetComponent<VehicleTuningState>()?.ResetForPool();
+        private static void Prefix(CarControl __instance) {__instance.GetComponent<VehicleTuningState>()?.ResetForPool();__instance.GetComponent<Appearance.Parts.BodyPartsState>()?.ResetForPool();}
     }
 
     [HarmonyPatch(typeof(NetManager), "NowStoped")]

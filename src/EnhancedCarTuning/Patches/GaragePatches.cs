@@ -33,7 +33,7 @@ namespace EnhancedCarTuning.Patches
         private static void Postfix(CarGarageUI_Buy __instance, MenuBuy buy)
         {
             var panel = GarageTuningPanel.Find(__instance);
-            if (panel) { panel.Session.AddPurchaseItems(buy); panel.BodyPaintSession?.AddPurchaseItems(buy); panel.PolicePaintSession?.AddPurchaseItems(buy); }
+            if (panel) { panel.Session.AddPurchaseItems(buy); panel.BodyPartsSession?.AddPurchaseItems(buy);panel.BodyPaintSession?.AddPurchaseItems(buy); panel.PolicePaintSession?.AddPurchaseItems(buy); panel.GetComponent<EnhancedCarTuning.Appearance.Glass.GlassGaragePrototype>()?.AddPurchaseItems(buy); }
         }
     }
 
@@ -46,7 +46,7 @@ namespace EnhancedCarTuning.Patches
         {
             if (__result) return;
             var panel = GarageTuningPanel.Find(__instance);
-            if (panel) { panel.PolicePaintSession?.WrapPurchase(); panel.BodyPaintSession?.WrapPurchase(); panel.Session.WrapPurchase(); }
+            if (panel) { panel.BodyPartsSession?.WrapPurchase();panel.PolicePaintSession?.WrapPurchase(); panel.BodyPaintSession?.WrapPurchase(); panel.Session.WrapPurchase(); panel.GetComponent<EnhancedCarTuning.Appearance.Glass.GlassGaragePrototype>()?.WrapPurchase(); }
         }
     }
 
@@ -57,10 +57,21 @@ namespace EnhancedCarTuning.Patches
         {
             var panel = __instance.GetComponent<GarageTuningPanel>();
             if (panel && panel.IsBodyPaint) return false;
-            if (!panel || !panel.ContainsPointer()) return true;
-            if (Input.GetMouseButtonDown(0)) __instance.isMousePressOnUI = true;
-            // The native decal raycast ignores uGUI raycasters; don't paint through our panel.
-            return false;
+            if (panel && panel.ContainsPointer() && Input.GetMouseButtonDown(0)) __instance.isMousePressOnUI = true;
+            // UpPaint also copies the picker color and redraws the vinyl texture.
+            // Keep that live while the pointer is over any of our controls.
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(CarGarageUI), "RayCastAlign")]
+    internal static class GarageVinylAlignPointerPatch
+    {
+        private static bool Prefix(CarGarageUI __instance)
+        {
+            var panel = __instance.GetComponent<GarageTuningPanel>();
+            // Only placement must stop over UI; the native raycast ignores uGUI.
+            return !panel || !panel.ContainsPointer();
         }
     }
 }

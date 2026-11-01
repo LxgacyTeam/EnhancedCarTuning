@@ -1,5 +1,7 @@
 <Project>
   <PropertyGroup>
+    <ResourcesPlatform Condition="'$(ResourcesPlatform)' == '' and $([MSBuild]::IsOSPlatform('Linux'))">Linux</ResourcesPlatform>
+    <ResourcesPlatform Condition="'$(ResourcesPlatform)' == ''">Windows</ResourcesPlatform>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>

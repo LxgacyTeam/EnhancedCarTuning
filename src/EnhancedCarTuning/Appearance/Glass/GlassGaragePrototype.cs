@@ -27,7 +27,7 @@ namespace EnhancedCarTuning.Appearance.Glass
         internal void Paint(int mask, Color color, GlassFinish finish, bool changeFinish)
         {
             if (!CanEdit || !state) return;
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < GlassGroupPaint.GroupCount; i++)
             {
                 var group = (GlassGroup)i;
                 if ((mask & (1 << i)) == 0 || state.GroupCount(group) == 0) continue;
@@ -37,7 +37,7 @@ namespace EnhancedCarTuning.Appearance.Glass
         internal void ResetGroups(int mask)
         {
             if (!CanEdit || !state) return;
-            for (int i = 0; i < 3; i++) if ((mask & (1 << i)) != 0 && state.GroupCount((GlassGroup)i) > 0)
+            for (int i = 0; i < GlassGroupPaint.GroupCount; i++) if ((mask & (1 << i)) != 0 && state.GroupCount((GlassGroup)i) > 0)
                 state.ActiveGroups[(GlassGroup)i] = new GlassGroupPaint(new Color(0,0,0,0), null);
         }
         internal void AddPurchaseItems(MenuBuy target)

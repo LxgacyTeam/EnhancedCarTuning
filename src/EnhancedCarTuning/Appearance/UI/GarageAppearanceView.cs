@@ -32,6 +32,8 @@ namespace EnhancedCarTuning.Appearance.UI
         private MenuButtonGroup policeButton;
         private PolicePaintArrow policeArrow;
         private string policeLabel;
+        private RectTransform glassEntry;
+        internal void SetGlassEntry(RectTransform entry) { glassEntry = entry; }
 
         internal GarageAppearanceView(CarGarageUI garage, PolicePaintSession policeSession)
         { this.garage = garage; this.policeSession = policeSession; }
@@ -171,7 +173,7 @@ namespace EnhancedCarTuning.Appearance.UI
         {
             if (!policeButton || !garage || !garage.bodyColor) return;
             if (policeArrow) policeArrow.color = policeButton.text.ui.color;
-            var body = (RectTransform)garage.bodyColor.transform;
+            var body = glassEntry ? glassEntry : (RectTransform)garage.bodyColor.transform;
             var rect = (RectTransform)policeButton.transform;
             NativeMenuFactory.CopyRect(body, rect);
             rect.sizeDelta = new Vector2(rect.sizeDelta.x, 148);

@@ -7,7 +7,7 @@ namespace EnhancedCarTuning.Appearance.Parts
 {
     internal sealed class BodyPartsSettings : IEquatable<BodyPartsSettings>
     {
-        internal const int AllMask=(1<<12)-1;
+        internal const int AllMask=(1<<13)-1;
         internal static readonly BodyPartsSettings Stock=new BodyPartsSettings(0,0,0);
         // Bed 0 means no truck bed; 1–4 select the corresponding ZiL variant.
         internal readonly int Visible, Hidden, Bed;

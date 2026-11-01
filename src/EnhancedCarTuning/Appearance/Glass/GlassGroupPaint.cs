@@ -4,9 +4,11 @@ using UnityEngine;
 
 namespace EnhancedCarTuning.Appearance.Glass
 {
-    internal enum GlassGroup { Front, Back, Middle }
+    internal enum GlassGroup { Front, Back, Middle, LampsFront, LampsBack, Sunroof }
     internal sealed class GlassGroupPaint
     {
+        internal const int GroupCount=6;
+        internal static bool IsLamp(GlassGroup group)=>group==GlassGroup.LampsFront||group==GlassGroup.LampsBack;
         internal readonly Color Tint;
         internal readonly GlassFinish Finish;
         internal GlassGroupPaint(Color tint, GlassFinish finish) { Tint = tint; Finish = finish; }
@@ -23,6 +25,6 @@ namespace EnhancedCarTuning.Appearance.Glass
             }
             return true;
         }
-        internal static string Label(GlassGroup group) => group == GlassGroup.Front ? "Перед" : group == GlassGroup.Back ? "Зад" : "Середина";
+        internal static string Label(GlassGroup group) => group == GlassGroup.Front ? "Перед" : group == GlassGroup.Back ? "Зад" : group==GlassGroup.Sunroof?"Люк":"Середина";
     }
 }

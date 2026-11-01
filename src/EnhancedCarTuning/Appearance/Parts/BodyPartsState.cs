@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
 using UnityEngine;
 
 namespace EnhancedCarTuning.Appearance.Parts
@@ -40,9 +39,13 @@ namespace EnhancedCarTuning.Appearance.Parts
             {
                 if(node==root||node.GetComponentInParent<CarControl>()!=car||targets.Any(t=>t.Root==node))continue;
                 var loader=node.GetComponent<MeshLoadFromResources>();
-                string name=loader&&!string.IsNullOrEmpty(loader.mesh_name)?loader.mesh_name:node.name;
+                string name=node.name;
                 int bed=zil?BodyElementNames.Bed(name):0;
-                if(!BodyElementNames.TryClassify(name,out var part)&&bed==0)continue;
+                bool classified=BodyElementNames.TryClassify(name,out var part);
+                if(!classified && loader)classified=BodyElementNames.TryClassify(loader.mesh_name,out part);
+                if(!classified&&bed==0)continue;
+                // Ignore abandoned, disabled template objects without the native streaming loader.
+                if(!loader&&!node.gameObject.activeSelf&&node.GetComponentsInChildren<MeshLoadFromResources>(true).Length==0)continue;
                 if(!loader&&!node.GetComponent<Renderer>()&&node.GetComponentsInChildren<MeshLoadFromResources>(true).Length==0)continue;
                 if(targets.Any(t=>t.Bed==bed&&(bed>0||t.Part==part)&&node.IsChildOf(t.Root)))continue;
                 // Prefer the outer matching node so each loader has a single owner.
@@ -64,7 +67,7 @@ namespace EnhancedCarTuning.Appearance.Parts
         internal int CurrentBed=>Active.Bed;
         internal void Preview(BodyPartsSettings settings){if(settings.Equals(Active))return;Scan();Active=settings;Apply(true);}
         internal void Commit(BodyPartsSettings settings){Preview(settings);Committed=settings;}
-        private static readonly System.Reflection.FieldInfo OnCar=AccessTools.Field(typeof(CarDetail),"isOnCar");
+        private static readonly System.Reflection.FieldInfo OnCar=typeof(CarDetail).GetField("isOnCar",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.NonPublic);
         private static bool CanShow(Target target)
         {var detail=target.Root.GetComponent<CarDetail>();return !detail||OnCar==null||(bool)OnCar.GetValue(detail);}
         internal void Apply(bool force=false)
@@ -98,7 +101,7 @@ namespace EnhancedCarTuning.Appearance.Parts
             t.Owned=false;t.BeforeLoad=null;
         }
         internal void ResetForPool(){Active=Committed=BodyPartsSettings.Stock;SerializePreview=false;foreach(var t in targets)Release(t);}
-        private void LateUpdate(){if(targets.Count==0&&Time.unscaledTime>=nextScan)Scan();if(!Active.Equals(BodyPartsSettings.Stock)||IsBedVehicle(car))Apply();}
+        private void LateUpdate(){if(Time.unscaledTime>=nextScan)Scan();if(!Active.Equals(BodyPartsSettings.Stock)||IsBedVehicle(car))Apply();}
         private void OnDisable(){ResetForPool();}
         private void OnDestroy(){foreach(var t in targets)Release(t);targets.Clear();}
     }
