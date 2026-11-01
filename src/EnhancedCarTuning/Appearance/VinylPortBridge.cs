@@ -28,6 +28,7 @@ namespace EnhancedCarTuning
                 garage.car.paintItems.UpImage();
                 panel?.BodyPaintSession?.RebaseImported();
                 panel?.RefreshImportedBodyPaint(true);
+                garage.GetComponent<EnhancedCarTuning.Appearance.Glass.GlassGaragePrototype>()?.RebaseImported();
             }
             finally { paintTarget = previous; }
         }

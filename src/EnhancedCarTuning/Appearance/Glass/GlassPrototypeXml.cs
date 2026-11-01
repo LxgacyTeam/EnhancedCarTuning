@@ -21,6 +21,7 @@ namespace EnhancedCarTuning.Appearance.Glass
             var finish = state.SerializePreview ? state.ActiveFinish : state.CommittedFinish;
             var groups = state.SerializePreview ? state.ActiveGroups : state.CommittedGroups;
             var node = root.OwnerDocument.CreateElement(Node); node.SetAttribute("version", "1");
+            node.SetAttribute("IncludeInVP", "true");
             node.SetAttribute("tint", Number(tint.r) + " " + Number(tint.g) + " " + Number(tint.b) + " " + Number(tint.a));
             if (finish != null) { node.SetAttribute("gloss", Number(finish.Gloss)); node.SetAttribute("metallic", Number(finish.Metallic)); }
             if (groups.Count > 0)
