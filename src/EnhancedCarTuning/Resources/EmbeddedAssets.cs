@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 
 namespace EnhancedCarTuning
 {
-    internal static class EmbeddedAssets
+    internal static partial class EmbeddedAssets
     {
         private static Texture2D iconTexture;
         private static Sprite icon;
@@ -137,6 +137,8 @@ namespace EnhancedCarTuning
 
         internal static void Clear()
         {
+            ClearRims();
+            ClearTires();
             if (icon) Object.Destroy(icon); icon = null;
             if (iconTexture) Object.Destroy(iconTexture); iconTexture = null;
             if (uiFontsBundle) { uiFontsBundle.Unload(false); uiFontsBundle = null; }

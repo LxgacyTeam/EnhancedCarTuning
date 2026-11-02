@@ -115,6 +115,8 @@ namespace EnhancedCarTuning.TuneUp.UI
 
                 engineSelectedValue = NativeMenuFactory.LayoutCategoryHeader(engineRow, "ДВИГАТЕЛЬ");
                 driveSelectedValue = NativeMenuFactory.LayoutCategoryHeader(driveRow, "ПРИВОД", true);
+                var driveIcon = driveRow.transform.Find("ECT.Visual/ECT.Icon") as RectTransform;
+                if (driveIcon) driveIcon.anchoredPosition += new Vector2(-10, -10);
                 foreach (DriveLayout layout in new[] { DriveLayout.Stock, DriveLayout.FWD, DriveLayout.RWD, DriveLayout.AWD })
                     driveIcons[layout] = factory.Sprite(DriveIcon(layout));
 

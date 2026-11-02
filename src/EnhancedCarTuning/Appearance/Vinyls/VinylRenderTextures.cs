@@ -17,10 +17,8 @@ namespace EnhancedCarTuning.Appearance.Vinyls
         {
             if (NetManager.isServer) return false;
             int resolution = Math.Min(EnhancedCarTuning.Configuration.TuningConfig.VinylTextureResolution, SystemInfo.maxTextureSize);
-            bool text = false;
-            foreach (var item in paint.items)
-                if (TextVinylData.IsText(item.spriteName)) { text = true; break; }
-            if (!text || resolution <= 512)
+            if (!paint) return false;
+            if (resolution <= 512)
             {
                 Release(paint);
                 return paint.TryGetTextureRt();
@@ -76,10 +74,8 @@ namespace EnhancedCarTuning.Appearance.Vinyls
         {
             foreach (var paint in new List<CarPaintItems>(entries.Keys))
             {
-                bool text = false;
-                if (paint) foreach (var item in paint.items)
-                    if (TextVinylData.IsText(item.spriteName)) { text = true; break; }
-                if (!text) Release(paint);
+                if (!paint || !paint.isActiveAndEnabled || !paint.car || !paint.car.gameObject.activeInHierarchy || paint.items.Count == 0)
+                    Release(paint);
             }
         }
         internal static void Clear()

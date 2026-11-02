@@ -31,7 +31,7 @@ namespace EnhancedCarTuning.Appearance.Vinyls
         {
             if (root == null) return true;
             var nodes = root.SelectNodes("CarPaint/Items/Item");
-            if (nodes.Count > 256) return false;
+            if (nodes.Count > 4096) return false;
             foreach (XmlElement item in nodes)
             {
                 var symmetry = item.GetAttribute(Symmetry);

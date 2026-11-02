@@ -14,7 +14,7 @@ namespace EnhancedCarTuning.Appearance.Body
             if (Contains(name, "Bamper_Front")) return BodyPart.Front;
             if (Contains(name, "Door")) return BodyPart.Doors;
             if (Contains(name, "Hood_Back")) return BodyPart.Trunk;
-            if (Contains(name, "Hood_Front")) return BodyPart.Hood;
+            if (Contains(name, "Hood_Front") || name.Equals("Hood", StringComparison.OrdinalIgnoreCase) || name.EndsWith("_Hood", StringComparison.OrdinalIgnoreCase)) return BodyPart.Hood;
             return BodyPart.Body;
         }
         private static bool Contains(string name, string detail) => name.IndexOf(detail, StringComparison.OrdinalIgnoreCase) >= 0;

@@ -23,8 +23,8 @@ namespace EnhancedCarTuning.TuneUp.Drive
                 switch (layout)
                 {
                     case DriveLayout.Stock: wheel.is_leading = i < stock.Length && stock[i]; break;
-                    case DriveLayout.FWD: wheel.is_leading = !wheel.IsBack; break;
-                    case DriveLayout.RWD: wheel.is_leading = wheel.IsBack; break;
+                    case DriveLayout.FWD: wheel.is_leading = !EnhancedCarTuning.Core.WheelAxle.IsRear(car, wheel); break;
+                    case DriveLayout.RWD: wheel.is_leading = EnhancedCarTuning.Core.WheelAxle.IsRear(car, wheel); break;
                     case DriveLayout.AWD: wheel.is_leading = true; break;
                 }
                 if (wheel.is_leading) leading++;
